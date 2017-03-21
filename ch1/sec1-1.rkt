@@ -225,3 +225,38 @@
 ;; 3162277660168379.0
 
 ;; `sqrt-improved` makes much closer approximations.
+
+
+;;; Exercise 1.8
+;;; ------------
+;;; Given the method for finding better approximations of cube roots is
+;;; ((x/(y^2)) + 2y)/3, create a procedure to find the cube root analagous
+;;; to the procedure to find the square root.
+
+(define (cbrt x)
+  (cbrt-iter 1.0 2.0 x))
+
+(define (cbrt-iter guess old-guess x)
+  (if (good-enough? guess old-guess)
+      guess
+      (cbrt-iter (improve guess x)
+                 guess
+                 x)))
+
+(define (good-enough? guess old-guess)
+  (< (abs (- guess old-guess)) 0.001))
+
+(define (improve guess x)
+  (/ (+ (/ x
+           (* guess guess))
+        (* 2 guess))
+     3))
+
+(cbrt 9)
+;; 2.0800838232385224
+
+(cbrt 0.0001)
+;; 0.046419202576589325
+
+(cbrt 10000000000000000000000000000000)
+;; 21544346900.318836
