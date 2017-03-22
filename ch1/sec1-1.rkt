@@ -217,6 +217,10 @@
 
 (define (good-enough?-improved guess old-guess)
   (< (abs (- guess old-guess)) 0.001))
+;; note: the accepted answer on community.schemewiki.org uses the comparison
+;; (< (abs (- guess old-guess)) (* guess 0.001)) since that is comparing the
+;; *percent* difference between guess and old-guess. The above solution still
+;; works, but the community.schemewiki.org solution is more accurate.
 
 (sqrt-improved 0.0001)
 ;; 0.010000714038711746
@@ -245,6 +249,8 @@
 
 (define (good-enough? guess old-guess)
   (< (abs (- guess old-guess)) 0.001))
+;; note: The community.schemewiki.org answer varies slightly. See the note for
+;; the good-enough? procedure in ex 1.7.
 
 (define (improve guess x)
   (/ (+ (/ x
