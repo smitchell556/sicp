@@ -193,4 +193,24 @@
 ;; (g n) = 2^n
 
 (define (h n) (A 2 n))
-;; (h n) = 2^2^2^(y-2) or 2^(2^...(n-1 times)) (total of n 2's)
+;; (h n) = 2^ * n or 2^(2^...(n-1 times)) (total of n 2's)
+
+
+;;; Exercise 1.11
+;;; -------------
+;;; A function f is defined such that f(n) = n if n < 3 and f(n) = (fn-1) +
+;;; 2 * f(n-2) + 3 * f(n-3) if n >= 3. Define recursive and iterative procedures
+;;; for f.
+
+;; Recursive
+(define (f n)
+  (cond
+   ((< n 3) n)
+   (else
+    (+ (f (- n 1))
+       (* 2
+          (f (- n 2)))
+       (* 3
+          (f (- n 3)))))))
+
+;; Iterative
