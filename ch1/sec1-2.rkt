@@ -214,3 +214,48 @@
           (f (- n 3)))))))
 
 ;; Iterative
+(define (f n)
+  (define (f-iter a b c count)
+    (cond
+     ((< n 3) n)
+     (else (if (> count n)
+               a
+               (f-iter (+ a
+                          (* 2 b)
+                          (* 3 c))
+                       a
+                       b
+                       (+ count 1))))))
+  (f-iter 2 1 0 3))
+
+
+;;; Exercise 1.12
+;;; -------------
+;;; Write a procedure that computes elements of Pascal's triangle by means of
+;;; a recursive process.
+
+(define (pascal n)
+  (define (pascal-num-recur col row)    ; generate a pascal number
+    (cond
+     ((= row 0) 1)
+     ((or (= col 0) (= col row)) 1)
+     (else
+      (+ (pascal-num-recur (- col 1) (- row 1))
+         (pascal-num-recur col (- row 1))))))
+  (define (pascal-iter col row)
+    (cond
+     ((<= col row)                      ; iterate through columns
+      (printf "~a " (pascal-num-recur col row))
+      (pascal-iter (+ col 1) row))
+     ((< row (- n 1))                         ; iterate through rows
+      (printf "\n")
+      (pascal-iter 0 (+ row 1)))
+     (else (printf "\n"))))
+  (pascal-iter 0 0))
+
+;; The question only asks to compute the elements, but I took it one step
+;; further by printing all elements through n rows. Although there is an
+;; iterative procedure `pascal-iter`, it's purpose is to step through each
+;; element in pascal's triangle and print the result of `pascal-num-recur` for
+;; that element in the triangle. `pascal-num-recur` is the procedure that
+;; fulfills the exercise.
