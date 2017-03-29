@@ -259,3 +259,37 @@
 ;; element in pascal's triangle and print the result of `pascal-num-recur` for
 ;; that element in the triangle. `pascal-num-recur` is the procedure that
 ;; fulfills the exercise.
+
+
+;;; Exercise 1.13
+;;; -------------
+;;; Prove Fib(n) is closest integer to x^n / sqrt(5) where x = (1 + sqrt(5)) / 2.
+;;; Hint: Let y = (1 - sqrt(5)) / 2. Use induction and the definition of the
+;;; Fibonacci numbers to prove Fib(n) = (x^n - y^n) / sqrt(5).
+
+;; The golden ratio (here referred to as x) states that (a + b) / a = a / b,
+;; where a > b. The golden ratio conjugate (here referred to as y) is the
+;; multiplicative inverse of x, so y = x^-1 or y = x - 1.
+
+;; The base cases are:
+;; Fib(0) = 0
+;; Fib(1) = 1
+
+;; The recursive case is:
+;; Fib(n) = Fib(n-1) + Fib(n-2)
+
+;; Computing x^n for the base case n = 0 results in:
+;; n = 0; ((1 + sqrt(5)) / 2)^0 = 1
+;; Computing y^n results in:
+;; n = 0; ((1 - sqrt(5)) / 2)^0 = 1
+;; Computing (x^n - y^n) / sqrt(5):
+;; n = 0; (1 - 1) / sqrt(5) = 0
+;; Fib(0) = (x^n - y^n) / sqrt(5) = 0     ; True
+
+;; Computing x^n for the base case n = 1 results in:
+;; n = 1; ((1 + sqrt(5)) / 2)^1 = (1 + sqrt(5)) * (1 / 2) =~ 1.618
+;; Computing y^n results in:
+;; n = 1; ((1 - sqrt(5)) / 2)^1 = (1 - sqrt(5)) * (1 / 2) =~ -0.618
+;; Computing (x^n - y^n) / sqrt(5):
+;; n = 1; ((1 + sqrt(5)) * (1 / 2) - (1 - sqrt(5)) * (1 / 2)) / sqrt(5) = 1
+;; Fib(1) = (x^n - y^n) / sqrt(5) = 1     ; True
