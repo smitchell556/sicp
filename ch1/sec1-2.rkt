@@ -296,8 +296,8 @@
 
 ;; Proving the recursive case
 
-;; Assume the statements Fib(0) through Fib(n-1) are true, prove
-;; Fib(n) = (x^n - y^n) / sqrt(5) is true.
+;; Assume the statements Fib(0) through Fib(n-1) are true for
+;; Fib(m) = (x^m - y^m) / sqrt(5), prove Fib(n) = (x^n - y^n) / sqrt(5) is true.
 
 ;; Fib(n) = (x^n - y^n) / sqrt(5)
 ;; Fib(n) = Fib(n-1) + Fib(n-2)
