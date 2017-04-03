@@ -267,9 +267,7 @@
 ;;; Hint: Let y = (1 - sqrt(5)) / 2. Use induction and the definition of the
 ;;; Fibonacci numbers to prove Fib(n) = (x^n - y^n) / sqrt(5).
 
-;; The golden ratio (here referred to as x) states that (a + b) / a = a / b,
-;; where a > b. The golden ratio conjugate (here referred to as y) is the
-;; multiplicative inverse of x, so y = x^-1 or y = x - 1.
+;; Note x^2 = x + 1 and by extension y^2 = y + 1
 
 ;; The base cases are:
 ;; Fib(0) = 0
@@ -277,6 +275,8 @@
 
 ;; The recursive case is:
 ;; Fib(n) = Fib(n-1) + Fib(n-2)
+
+;; Proving the base cases
 
 ;; Computing x^n for the base case n = 0 results in:
 ;; n = 0; ((1 + sqrt(5)) / 2)^0 = 1
@@ -293,3 +293,18 @@
 ;; Computing (x^n - y^n) / sqrt(5):
 ;; n = 1; ((1 + sqrt(5)) * (1 / 2) - (1 - sqrt(5)) * (1 / 2)) / sqrt(5) = 1
 ;; Fib(1) = (x^n - y^n) / sqrt(5) = 1     ; True
+
+;; Proving the recursive case
+
+;; Assume the statements Fib(0) through Fib(n-1) are true, prove
+;; Fib(n) = (x^n - y^n) / sqrt(5) is true.
+
+;; Fib(n) = (x^n - y^n) / sqrt(5)
+;; Fib(n) = Fib(n-1) + Fib(n-2)
+;; = ((x^(n-1) - y^(n-1)) / sqrt(5)) + ((x^(n-2) - y^(n-2)) / sqrt(5))
+;; = ((x^n / x) - (y^n / y) + (x^n / x^2) - (y^n / y^2)) / sqrt(5)
+;; = (x^n * ((1 / x) + (1 / x^2)) - y^n * ((1 / y) + (1 / y^2))) / sqrt(5)
+;; = (x^n * ((x + 1) / x^2) - y^n * ((y + 1) / y^2)) / sqrt(5)
+;; = (x^n * (x^2 / x^2) - y^n * (y^2 / y^2)) / sqrt(5)
+;; = (x^n - y^n) / sqrt(5)
+;; Therefore Fib(n) is true and holds true for all n > 1.
