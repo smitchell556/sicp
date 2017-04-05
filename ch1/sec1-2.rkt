@@ -309,6 +309,32 @@
 ;; = (x^n - y^n) / sqrt(5)
 ;; Therefore Fib(n) is true and holds true for all n > 1.
 
+;; Now to prove Fib(n) is the closest integer to x^n / sqrt(5). Since Fib(n) =
+;; (x^n - y^n) / sqrt(5), we must show that -1/2 < y^n / sqrt(5) < 1/2 or
+;; abs(y^n / sqrt(5)) < 1/2 for all n >= 0. This shows x^n / sqrt(5) is closer
+;; to Fib(n) than it would be to Fib(n) + 1 or Fib(n) - 1.
+
+;; Since y = (1 - sqrt(5)) / 2, y^n / sqrt(5) will be represented as
+;; (1 - sqrt(5))^n / (2^n * sqrt(5))
+
+;; First we prove the base case n = 0.
+;; n = 0; abs((1 - sqrt(5))^0 / (2^0 * sqrt(5))) = 1 / sqrt(5) =~ 0.447
+;; 1 / sqrt(5) < 1/2 is true.
+
+;; Next we prove that abs(y^n / sqrt(5)) < abs(y^(n-1) / sqrt(5)). The
+;; constants can be removed and all that needs to be proved is that
+;; abs(y^n) < abs(y^(n-1))
+
+;; Expanding y^n and y^(n-1) we get
+;; abs((1 - sqrt(5))^n / 2^n) < abs((1 - sqrt(5))^(n-1) / 2^(n-1))
+;; Using arithmetic results in
+;; abs((1 - sqrt(5))^n / (1 - sqrt(5))^(n-1)) < abs(2^n / 2^(n-1))
+;; which can be reduced to abs(1 - sqrt(5)) < abs(2) which is true.
+
+;; Therefore as n increases, the value of abs(y^n / sqrt(5)) decreases. Since
+;; abs(y^n / sqrt(5)) < 1/2 when n = 0, then abs(y^n / sqrt(5)) < 1/2 for all
+;; n > 0.
+
 
 ;;; Exercise 1.14
 ;;; -------------
