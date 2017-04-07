@@ -398,6 +398,7 @@
 ;;        |
 ;;       0 (1)
 
+;; =~ 55 total nodes
 ;; TBC after learning more about algorithmic analysis
 
 
@@ -434,3 +435,43 @@
 ;;;    is evaluated?
 
 ;; TBC after learning more about algorithmic analysis
+
+
+;;; Exercise 1.16
+;;; -------------
+;;; Create an iterative process for exponentiation that uses successive
+;;; squaring and uses a logarithmic number of steps.
+
+(define (fast-expt b n)
+  (define (fast-expt-iter b n a)
+    (cond ((= n 1) a)
+          ((even? n) (fast-expt-iter b
+                                     (/ n 2)
+                                     (* a (square b))))
+          (else (fast-expt-iter b
+                                (- n 1)
+                                (* a b)))))
+  (fast-expt-iter b n 1))
+
+
+;;; Exercise 1.17
+;;; -------------
+;;; Create a faster iterative multiplication procedure using `double` and
+;;; `halve`.
+
+(define (double n)
+  (* n 2))
+
+(define (halve n)
+  (/ n 2))
+
+(define (fast-mult a b)
+  (define (fast-mult-iter n rv)
+    (cond
+     ((= b 0) 0)
+     ((= n 1) rv)
+     ((even? n) (fast-mult-iter (halve n)
+                                (+ (double a) rv)))
+     (else
+      (fast-mult-iter (- n 1) (+ a rv)))))
+  (fast-mult-iter b 0))
