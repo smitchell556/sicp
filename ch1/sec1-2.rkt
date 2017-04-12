@@ -456,22 +456,46 @@
 
 ;;; Exercise 1.17
 ;;; -------------
-;;; Create a faster iterative multiplication procedure using `double` and
-;;; `halve`.
+;;; Create a faster multiplication procedure using `double` and `halve`
+;;; that uses a logarithmic number of steps.
 
 (define (double n)
-  (* n 2))
+  (+ n n))
 
 (define (halve n)
   (/ n 2))
 
 (define (fast-mult a b)
+  (cond
+   ((= b 0) 0)
+   ((even? b) (double (fast-mult a (halve b))))
+   (else
+    (+ a (fast-mult a (- b 1))))))
+
+
+;;; Exercise 1.18
+;;; -------------
+;;; Create an iterative process for multiplying two integers in terms of
+;;; adding, doubling, and halving and uses logarithmic number of steps.
+
+(define (fast-mult a b)
   (define (fast-mult-iter n rv)
     (cond
-     ((= b 0) 0)
-     ((= n 1) rv)
-     ((even? n) (fast-mult-iter (halve n)
-                                (+ (double a) rv)))
+     ((null? n) rv)
+     ((even? (car n)) (fast-mult-iter (cdr n) (double rv)))
      (else
-      (fast-mult-iter (- n 1) (+ a rv)))))
-  (fast-mult-iter b 0))
+      (fast-mult-iter (cdr n) (+ a rv)))))
+  (define (n-list n)
+    (cond
+     ((= (car n) 2) n)
+     ((even? (car n)) (n-list (cons (halve (car n)) n)))
+     (else
+      (n-list (cons (- (car n) 1) n)))))
+  (cond
+   ((or (= a 0) (= b 0)) 0)
+   (else
+    (fast-mult-iter (n-list (list b)) a))))
+
+;; Struggled with this one. The book hasn't touched on lists yet, but I couldn't
+;; come up with a way to iterate up from a starting value of `a` without knowing
+;; where to double beforehand. May come back to this one.
