@@ -493,9 +493,31 @@
       (n-list (cons (- (car n) 1) n)))))
   (cond
    ((or (= a 0) (= b 0)) 0)
+   ((= a 1) b)
+   ((= b 1) a)
    (else
     (fast-mult-iter (n-list (list b)) a))))
 
 ;; Struggled with this one. The book hasn't touched on lists yet, but I couldn't
 ;; come up with a way to iterate up from a starting value of `a` without knowing
 ;; where to double beforehand. May come back to this one.
+
+
+;;; Exercise 1.19
+;;; -------------
+;;; Compute p' and q' for the modified fibonacci process.
+
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count) (fib-iter a
+                                 b
+                                 q          ;p' WRONG!!! Try (T_pq)^2 instead of 2(T_pq)
+                                 (+ p q)    ;q' WRONG!!!
+                                 (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
