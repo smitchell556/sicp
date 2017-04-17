@@ -513,11 +513,17 @@
   (cond ((= count 0) b)
         ((even? count) (fib-iter a
                                  b
-                                 q          ;p' WRONG!!! Try (T_pq)^2 instead of 2(T_pq)
-                                 (+ p q)    ;q' WRONG!!!
+                                 (p-prime p q)
+                                 (q-prime p q)
                                  (/ count 2)))
         (else (fib-iter (+ (* b q) (* a q) (* a p))
                         (+ (* b p) (* a q))
                         p
                         q
                         (- count 1)))))
+
+(define (p-prime p q)
+  (+ (* p p) (* q q)))
+
+(define (q-prime p q)
+  (+ (* q q) (* 2 p q)))
