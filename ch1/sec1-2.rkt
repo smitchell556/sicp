@@ -522,8 +522,68 @@
                         q
                         (- count 1)))))
 
+;; Using the transformation T(pq) = {a = bq+aq+ap, b = bp+aq} to find T(p'q')
+;; by performing the transformation twice such that T(T(pq)) = T(p'q'). Solve
+;; for p' and q'.
+
 (define (p-prime p q)
   (+ (* p p) (* q q)))
 
 (define (q-prime p q)
   (+ (* q q) (* 2 p q)))
+
+
+;;; Exercise 1.20
+;;; -------------
+;;; Evaluate the number of remainder operations for the gcd procedure using
+;;; normal-order evaluation and applicative-order evaluation
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+;; Using normal-order evaluation
+(gcd 206 40)
+
+;; recursively calls
+(gcd 40 (remainder 206 40))
+;; b = 6
+
+;; where b = (remainder 206 40) is not expanded until b is needed as a primitive
+;; value. So b is expanded when compared to 0. Otherwise the remainder procedure
+;; continues to be passed around as is repeatedly building on itself. It is then
+;; expanded when b = 0 and a is returned.
+(gcd (remainder 206 40) (remainder 40 (remainder 206 40)))
+;; b = 4
+(gcd (remainder 40 (remainder 206 40))
+     (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))
+;; b = 2
+(gcd (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+     (remainder (remainder 40 (remainder 206 40))
+                (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))))
+;; b = 0, calculate a and return.
+(remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+(remainder 6 (remainder 40 (remainder 206 40)))
+(remainder 6 (remainder 40 6))
+(remainder 6 4)
+2
+
+;; The number of times b was evaluated to check for equality with 0 was 14 times
+;; since with every level deeper the number of calls to remainder increases. Then
+;; a was evaluated at the end which made 4 calls to remainder resulting in a total
+;; of 18 calls to remainder.
+
+;; Using applicative-order evaluation
+(gcd 206 40)
+;; b = 6. b is expanded before being passed into the next gcd call and therefore
+;; won't be repeatedly recalculated. This holds for each step.
+(gcd 40 6)
+(gcd 6 4)
+(gcd 4 2)
+(gcd 2 0)
+2
+
+;; The number of times remainder was called is equal to the number of times
+;; b != 0, which is 4 times in this case. Therefore remainder was called 4
+;; times.
