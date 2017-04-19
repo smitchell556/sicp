@@ -587,3 +587,105 @@
 ;; The number of times remainder was called is equal to the number of times
 ;; b != 0, which is 4 times in this case. Therefore remainder was called 4
 ;; times.
+
+
+;;; Exercise 1.21
+;;; -------------
+;;; Use smallest-divisor procedure to find the smallest divisor of 199, 1999,
+;;; and 19999.
+
+(define (smallest-divisor n)
+  (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b)
+  (= (remainder b a) 0))
+(define (square n)
+  (* n n))
+
+(smallest-divisor 199)
+;; 199
+
+(smallest-divisor 1999)
+;; 1999
+
+(smallest-divisor 19999)
+;; 7
+
+
+;;; Exercise 1.22
+;;; -------------
+;;; Use timed-prime-test, write a procedure search-for-primes to find the three
+;;; smallest primes larger than 1000, 10000, 100000, and 1000000. Compare the
+;;; times to see if the theta(sqrt(n))analysis of the prime-test algorithm
+;;; holds true.
+
+(define (timed-prime-test n)
+  (newline)
+  (display n)
+  (start-prime-test n (runtime))
+  (newline))
+(define (start-prime-test n start-time)
+  (if (prime? n)
+      (report-prime (- (runtime) start-time))))
+(define (report-prime elapsed-time)
+  (display " *** ")
+  (display elapsed-time))
+(define (smallest-divisor n)
+  (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+(define (divides? a b)
+  (= (remainder b a) 0))
+(define (square n)
+  (* n n))
+(define (prime? n)
+  (= n (smallest-divisor n)))
+
+(define (search-for-primes n)
+  (define (s-f-p n cnt)
+    (cond ((> cnt 0) (s-f-p (+ 1 n)
+                            (prime-test n cnt)))))
+  (define (prime-test n cnt)
+    (cond ((not (prime? n)) cnt)
+          (else (timed-prime-test n)
+                (- cnt 1))))
+  (s-f-p n 3))
+
+(search-for-primes 1000)
+;; 1009 *** 7
+;; 1013 *** 4
+;; 1019 *** 6
+
+(search-for-primes 10000)
+;; 10007 *** 15
+;; 10009 *** 11
+;; 10037 *** 11
+
+(search-for-primes 100000)
+;; 100003 *** 36
+;; 100019 *** 33
+;; 100043 *** 32
+
+(search-for-primes 1000000)
+;; 1000003 *** 105
+;; 1000033 *** 101
+;; 1000037 *** 99
+
+;; Analyzing the above results using the equation:
+;; sqrt(n1) / sqrt(n2) = t1 / t2
+;; should result in times being roughly equivalent to those above assuming
+;; that the only thing affecting the time is the algorithm itself.
+;; When using the above values of n, the tightness of the theta(sqrt(n))
+;; analysis was stronger for values of n that were closer in magnitude. As n2
+;; increased, the computed t2 based on the experimental t1 tended to increase
+;; at a larger rate than the experimental t2, but it seemed to be by some
+;; constant factor, which points toward an asymptotic bound. Based on the data
+;; set created above it is difficult to claim that the running time is
+;; proportional to the number of steps needed for computation, but it does lead
+;; credence to a level of proportionality between the running time and the
+;; number of steps needed.
