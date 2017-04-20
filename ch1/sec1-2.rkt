@@ -689,3 +689,149 @@
 ;; proportional to the number of steps needed for computation, but it does lead
 ;; credence to a level of proportionality between the running time and the
 ;; number of steps needed.
+
+
+;;; Exercise 1.23
+;;; -------------
+;;; Write a procedure `next` that returns 3 if its input is equal to 2 or
+;;; increments the input by 2 otherwise. This cuts down on the redundant
+;;; checks of even numbers. Run the same analysis as above and check if the
+;;; running times are halved.
+
+(define (timed-prime-test n)
+  (newline)
+  (display n)
+  (start-prime-test n (runtime))
+  (newline))
+(define (start-prime-test n start-time)
+  (if (prime? n)
+      (report-prime (- (runtime) start-time))))
+(define (report-prime elapsed-time)
+  (display " *** ")
+  (display elapsed-time))
+(define (smallest-divisor n)
+  (find-divisor n 2))
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (next test-divisor))))) ; use `next` here.
+(define (divides? a b)
+  (= (remainder b a) 0))
+(define (square n)
+  (* n n))
+(define (prime? n)
+  (= n (smallest-divisor n)))
+(define (search-for-primes n)
+  (define (s-f-p n cnt)
+    (cond ((> cnt 0) (s-f-p (+ 1 n)
+                            (prime-test n cnt)))))
+  (define (prime-test n cnt)
+    (cond ((not (prime? n)) cnt)
+          (else (timed-prime-test n)
+                (- cnt 1))))
+  (s-f-p n 3))
+
+(define (next inp)
+  (if (> inp 2)
+      (+ inp 2)
+      3))
+
+(search-for-primes 1000)
+;; 1009 *** 5
+;; 1013 *** 2
+;; 1019 *** 2
+
+(search-for-primes 10000)
+;; 10007 *** 11
+;; 10009 *** 8
+;; 10037 *** 6
+
+(search-for-primes 100000)
+;; 100003 *** 24
+;; 100019 *** 20
+;; 100043 *** 19
+
+(search-for-primes 1000000)
+;; 1000003 *** 65
+;; 1000033 *** 60
+;; 1000037 *** 62
+
+;; The new algorithm runs at =~ 1.5x faster, which is different from the
+;; expected value of 2. Again, the data set is much too small using a very
+;; limited value of n to come to any significant conclusion, but if I were to
+;; hazard a guess, the discrepency is due to the constant factors (conditional
+;; checks, arithmetic, etc). 
+
+
+;;; Exercise 1.24
+;;; -------------
+;;; Repeat the process for Exercise 1.23 using `fast-prime?`.
+
+(define (timed-prime-test n)
+  (newline)
+  (display n)
+  (start-prime-test n (runtime))
+  (newline))
+(define (start-prime-test n start-time)
+  (if (fast-prime? n 100)
+      (report-prime (- (runtime) start-time))))
+(define (report-prime elapsed-time)
+  (display " *** ")
+  (display elapsed-time))
+(define (square n)
+  (* n n))
+(define (search-for-primes n)
+  (define (s-f-p n cnt)
+    (cond ((> cnt 0) (s-f-p (+ 1 n)
+                            (prime-test n cnt)))))
+  (define (prime-test n cnt)
+    (cond ((not (fast-prime? n 100)) cnt)
+          (else (timed-prime-test n)
+                (- cnt 1))))
+  (s-f-p n 3))
+
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (square (expmod base (/ exp 2) m))
+                    m))
+        (else
+         (remainder (* base (expmod base (- exp 1) m))
+                    m))))
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
+(search-for-primes 1000)
+;; 1009 *** 258
+;; 1013 *** 256
+;; 1019 *** 260
+
+(search-for-primes 10000)
+;; 10007 *** 316
+;; 10009 *** 244
+;; 10037 *** 261
+
+(search-for-primes 100000)
+;; 100003 *** 349
+;; 100019 *** 327
+;; 100043 *** 352
+
+(search-for-primes 1000000)
+;; 1000003 *** 477
+;; 1000033 *** 363
+;; 1000037 *** 428
+
+;; I chose an arbitrary number of 100 checks for the `fast-prime?` procedure,
+;; and the results were wildly inconsistent. The above run times were the most
+;; consistently observed of the minimal runs done, but even they would vary
+;; by 20% or more. Looking at the above results, there's definitely a log(n)
+;; trend since the run time increases roughly by a factor of log_2(10) for each
+;; 10x magnitude increase.
+
+;; The resulting run times were also much slower than the previous exercises.
