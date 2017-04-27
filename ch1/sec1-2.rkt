@@ -835,3 +835,4 @@
 ;; 10x magnitude increase.
 
 ;; The resulting run times were also much slower than the previous exercises.
+;; Maybe because fast-prime? is run 100 times?
