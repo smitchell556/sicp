@@ -836,3 +836,43 @@
 
 ;; The resulting run times were also much slower than the previous exercises.
 ;; Maybe because fast-prime? is run 100 times?
+
+
+;;; Exercise 1.25
+;;; -------------
+;;; Would substituting fast-expt into expmod work as well as the regular
+;;; expmod?
+
+(define (expmod base exp m)
+  (remainder (fast-expt base exp) m))
+
+;; The end result is the same; the difference between the two implementations
+;; is that using fast-expt will generate a base^exp first which can be very
+;; large and the increased size could increase computation time. The original
+;; expmod is constantly finding the remainder where the divisor is the number
+;; being tested. This ensures that after each square->remainder process, the
+;; input size is less than the divisor.
+
+
+;;; Exercise 1.26
+;;; -------------
+;;; Explain why multiplying expmod by itself increases the running time compared
+;;; to using the square procedure.
+
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (* (expmod base (/ exp 2) m)  ; why is this less efficient
+                       (expmod base (/ exp 2) m)) ; than using square?
+                    m))
+        (else
+         (remainder (* base (expmod base (- exp 1) m)) m))))
+
+;; Using square in combination with dividing the exponent by 2 runs in
+;; theta(log n) because the input size is being halved at each step. The
+;; calculation for expmod is being done once, then passed to the square
+;; procedure. By multiplying two calls to expmod, the input size is being
+;; halved, but since it's being done twice, it negates the halving. By using
+;; square, the running time can be summarized as T(n) = T(n/2) + c which is
+;; theta(n^0 log n); Using multiplication like above can be summarized as
+;; T(n) = 2T(n/2) + c which is theta(n).
