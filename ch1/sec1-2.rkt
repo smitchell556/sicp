@@ -876,3 +876,34 @@
 ;; square, the running time can be summarized as T(n) = T(n/2) + c which is
 ;; theta(n^0 log n); Using multiplication like above can be summarized as
 ;; T(n) = 2T(n/2) + c which is theta(n).
+
+
+;;; Exercise 1.27
+;;; -------------
+;;; Fool the Fermat test with the Carmichael numbers: 561, 1105, 1729, 2465,
+;;; 2821, and 6601.
+
+(define (fool-fermat n)
+  (define (fool-fermat-iter a)
+    (cond ((< a 0) #t)
+          ((not (= (expmod a n n) (modulo a n))) #f)
+          (else (fool-fermat-iter (- a 1)))))
+  (fool-fermat-iter (- n 1)))
+
+(fool-fermat 561)
+;; #t
+
+(fool-fermat 1105)
+;; #t
+
+(fool-fermat 1729)
+;; #t
+
+(fool-fermat 2465)
+;; #t
+
+(fool-fermat 2821)
+;; #t
+
+(fool-fermat 6601)
+;; #t
