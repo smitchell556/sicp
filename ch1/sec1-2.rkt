@@ -907,3 +907,24 @@
 
 (fool-fermat 6601)
 ;; #t
+
+
+;;; Exercise 1.28
+;;; -------------
+;;; Modify `fermat-test` to use the Miller-Rabin test.
+
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (square (expmod base (/ exp 2) m))
+                    m))
+        (else
+         (remainder (* base (expmod base (- exp 1) m))
+                    m))))
+(define (miller-rabin-test n)
+  (define 
+  
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
