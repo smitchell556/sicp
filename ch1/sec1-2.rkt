@@ -921,10 +921,28 @@
         (else
          (remainder (* base (expmod base (- exp 1) m))
                     m))))
-(define (miller-rabin-test n)
-  (define 
-  
-(define (fast-prime? n times)
-  (cond ((= times 0) true)
-        ((fermat-test n) (fast-prime? n (- times 1)))
+(define (miller-rabin-test n k)
+  (define (find-d d)
+    (cond
+     ((= (remainder d 0) 1) (find-d (/ d 2)))
+     (else
+      d)))
+  (define (test d)
+    (define (test-iter d x)
+      (cond
+       ((= d (- n 1)) false)
+       ((or (= x 1) (= x (- n 1))) true)
+       (else
+        (test-iter (* d 2) (remainder (* x x) n)))))
+    (test-iter d (expmod (+ (random (- n 4)) 2) d n)))
+  (define (run-test d k)
+    (cond
+     ((= k 0) true)
+     ((equal? (test d) false) false)
+     (else
+      (run-test d (- k 1)))))
+  (run-test (find-d (- n 1)) k))
+
+(define (fast-prime? n k)
+  (cond ((miller-rabin-test n k) true)
         (else false)))
