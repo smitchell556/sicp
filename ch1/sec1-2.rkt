@@ -405,14 +405,8 @@
 ;; repeat. The cumulative space used will be greater than n, but at any given
 ;; time a maximum of n space is used.
 
-;; The order of growth of steps is O(d^n) where d is the kinds of coins. As the
-;; amount increases, each node of the tree will recursively call itself d times.
-;; In the hypothetical worst case scenario, each kind of coin would have a value
-;; of 1. This would lead to a full tree with d child nodes per node (with the
-;; exception of leaf nodes). The number of nodes in a k-ary tree is k^h where
-;; h is the height. The height of the algorithm is the amount and the number
-;; of child nodes per node is equal to how many kinds of coins, therefore
-;; d^n or O(d^n) since in practice all kinds of coins would not be 1.
+;; The order of growth of steps is O(n^d). This is due to the fact that for each
+;; denomination there is a new branch which can have at most n height.
 
 
 ;;; Exercise 1.15
@@ -467,6 +461,8 @@
                                 (* a b)))))
   (fast-expt-iter b n 1))
 
+;; Note this does not handle values < 0.
+
 
 ;;; Exercise 1.17
 ;;; -------------
@@ -515,6 +511,10 @@
 ;; Struggled with this one. The book hasn't touched on lists yet, but I couldn't
 ;; come up with a way to iterate up from a starting value of `a` without knowing
 ;; where to double beforehand. May come back to this one.
+
+;; Note: after looking at the solutions provided by the scheme wiki community,
+;; it seems I was overthinking it. The solution is not that difficult and could
+;; be implemented in as many lines as the solution for 1.17.
 
 
 ;;; Exercise 1.19
@@ -888,7 +888,7 @@
 ;; procedure. By multiplying two calls to expmod, the input size is being
 ;; halved, but since it's being done twice, it negates the halving. By using
 ;; square, the running time can be summarized as T(n) = T(n/2) + c which is
-;; theta(n^0 log n); Using multiplication like above can be summarized as
+;; theta(log n); Using multiplication like above can be summarized as
 ;; T(n) = 2T(n/2) + c which is theta(n).
 
 
