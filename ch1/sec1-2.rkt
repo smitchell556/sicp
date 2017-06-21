@@ -516,6 +516,17 @@
 ;; it seems I was overthinking it. The solution is not that difficult and could
 ;; be implemented in as many lines as the solution for 1.17.
 
+;; Second attempt
+
+(define (fast-mult a b)
+  (define (iter a b result)
+    (cond
+     ((= b 0) result)
+     ((even? b) (iter (double a) (halve b) result))
+     (else
+      (iter a (- b 1) (+ result a)))))
+  (iter a b 0))
+
 
 ;;; Exercise 1.19
 ;;; -------------
