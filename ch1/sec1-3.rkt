@@ -356,3 +356,67 @@
 			     (* x x)))
 	     (lambda (i) (+ i (- i 1)))
 	     k))
+
+
+;;; Exercise 1.40
+;;; -------------
+;;; Define a procedure cubic that can be used together with the newtons-method
+;;; procedure to approximate zeros of the cubic x^3 + ax^2 + bx + c such that
+;;; (newtons-method (cubic a b c) 1)
+
+(define dx 0.00001)
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x) ((deriv g) x)))))
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x)
+		 (* a
+		    (* x x))
+		 (* b x)
+		 c)))
+
+
+;;; Exercise 1.40
+;;; -------------
+;;; Define a procedure double that takes a procedure of one argument and
+;;; returns a procedure that applies the original procedure twice. What does
+;;; (((double (double double)) inc) 5) compute to?
+
+(define (double f)
+  (lambda (x)
+    (f (f x))))
+
+(((double (double double)) inc) 5)
+;; 21
+;; The expansion looks like:
+;; (((double lambda (x) (double (double x))) inc) 5)
+;; ((lambda (x) (double (double (double (double x)))) inc) 5)
+;; ((double (double (double (double inc)))) 5)
+;; ((double (double (double lambda (x) (inc (inc x))))) 5)
+;; ((double (double lambda (x) (inc (inc (inc (inc x)))))) 5)
+;; ((double lambda (x) (inc (inc (inc (inc (inc (inc (inc (inc x))))))))) 5)
+;; (lambda (x) (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc x)))))))))))))))) 5)
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 5))))))))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 6)))))))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 7))))))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 8)))))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 9))))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 10)))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc (inc 11))))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc (inc 12)))))))))
+;; (inc (inc (inc (inc (inc (inc (inc (inc 13))))))))
+;; (inc (inc (inc (inc (inc (inc (inc 14)))))))
+;; (inc (inc (inc (inc (inc (inc 15))))))
+;; (inc (inc (inc (inc (inc 16)))))
+;; (inc (inc (inc (inc 17))))
+;; (inc (inc (inc 18)))
+;; (inc (inc 19))
+;; (inc 20)
+;; 21
