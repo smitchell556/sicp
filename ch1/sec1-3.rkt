@@ -383,7 +383,7 @@
 		 c)))
 
 
-;;; Exercise 1.40
+;;; Exercise 1.41
 ;;; -------------
 ;;; Define a procedure double that takes a procedure of one argument and
 ;;; returns a procedure that applies the original procedure twice. What does
@@ -420,3 +420,111 @@
 ;; (inc (inc 19))
 ;; (inc 20)
 ;; 21
+
+
+;;; Exercise 1.42
+;;; -------------
+;;; Create a procedure compose that makes a composition of f and g such that
+;;; x -> f(g(x)).
+
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+
+
+;;; Exercise 1.43
+;;; -------------
+;;; Define a procedure that applies a function f to an argument n times.
+
+(define (repeated f n)
+  (if (= n 1)
+      (lambda (x) (f x))
+      (compose f (repeated f (- n 1)))))
+
+
+;;; Exercise 1.44
+;;; -------------
+;;; Define a procedure smooth that takes the average of f(x-dx), f(x), and
+;;; f(x+dx). Define a procedure n-fold-smooth that smooths a function n times.
+
+(define (smooth f dx)
+  (lambda (x) (/ (+ (f (- x dx))
+		    (f x)
+		    (f (+ x dx)))
+		 3.0)))
+
+(define (n-fold-smooth f dx n)
+  (repeated (smooth f dx) n))
+
+
+;;; Exercise 1.45
+;;; -------------
+;;; Define a damping procedure for nth roots.
+
+;; Given:
+
+(define tolerance 0.00001)
+
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (display guess)
+    (newline)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+	  next
+	  (try next))))
+  (try first-guess))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+
+(define (repeated f n)
+  (if (= n 1)
+      (lambda (x) (f x))
+      (compose f (repeated f (- n 1)))))
+
+
+(define (n-root x n)
+  (define (x-rep x expt)
+    (if (> x n)
+	expt
+	(x-rep (* x 2) (+ expt 1))))
+  (fixed-point ((repeated average-damp
+			(x-rep 2 1))
+		(lambda (y) (/ x (expt y (- n 1)))))
+	       1.0))
+
+
+;;; Exercise 1.46
+;;; -------------
+;;; Define a procedure iterative-improve that takes two procedures as arguments
+;;; a method for telling whether a guess is good enough and a method for
+;;; improving a guess. It should return a procedure that takes a guess as
+;;; argument and keeps improving until it is good enough. Rewrite sqrt and
+;;; fixed-point using iterative-improve.
+
+(define (iterative-improve check improve)
+  (define (iter guess)
+    (let ((next (improve guess)))
+      (if (check guess next)
+	  next
+	  (iter next))))
+  (lambda (x) (iter x)))
+
+(define (sqrt x)
+  ((iterative-improve (lambda (x y) (< (abs (- x y)) 0.00001))
+		      (lambda (y) (average y (/ x y))))
+   1.0))
+
+(define (fixed-point f first-guess)
+  ((iterative-improve (lambda (x y) (< (abs (- x y)) 0.00001)) f)
+   first-guess))
