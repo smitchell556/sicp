@@ -81,3 +81,42 @@
     (/ (+ (coord (start-segment segment)) (coord (end-segment segment)))
        2))
   (make-point (avg-coord s x-point) (avg-coord s y-point)))
+
+
+;;; Exercise 2.3
+;;; ------------
+;;; Implement a representation for rectangles in a plane. Make procedures that
+;;; compute the perimeter and the area of a given rectangle. Implement a
+;;; different representation for rectangles that works with the same perimeter
+;;; and area procedures.
+
+(define (make-rect base height)
+  ;; base: a line segment.
+  ;; height: an int. the height 
+  (cons tl (cons tr (cons br bl))))
+
+(define (top-segment rect)
+  (make-segment (car rect) (car (cdr rect))))
+
+(define (right-segment rect)
+  (make-segment (car (cdr rect)) (car (cdr (cdr rect)))))
+
+(define (bottom-segment rect)
+  (make-segment (car (cdr (cdr rect))) (cdr (cdr (cdr rect)))))
+
+(define (left-segment rect)
+  (make-segment (cdr (cdr (cdr rect))) (car rect)))
+
+
+(define (perimeter rect)
+  (define (distance segment)
+    (sqrt (+ (expt (- (x-point (start-segment segment))
+		      (x-point (end-segment segment)))
+		   2)
+	     (expt (- (y-point (start-segment segment))
+		      (y-point (end-segment segment)))
+		   2))))
+  (+ (distance (top-segment rect))
+     (distance (right-segment rect))
+     (distance (bottom-segment rect))
+     (distance (left-segment rect))))
