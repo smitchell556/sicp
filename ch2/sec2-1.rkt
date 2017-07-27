@@ -92,31 +92,42 @@
 
 (define (make-rect base height)
   ;; base: a line segment.
-  ;; height: an int. the height 
-  (cons tl (cons tr (cons br bl))))
+  ;; height: an int.
+  (cons base height))
 
-(define (top-segment rect)
-  (make-segment (car rect) (car (cdr rect))))
-
-(define (right-segment rect)
-  (make-segment (car (cdr rect)) (car (cdr (cdr rect)))))
-
-(define (bottom-segment rect)
-  (make-segment (car (cdr (cdr rect))) (cdr (cdr (cdr rect)))))
-
-(define (left-segment rect)
-  (make-segment (cdr (cdr (cdr rect))) (car rect)))
-
-
-(define (perimeter rect)
-  (define (distance segment)
+(define (distance segment)
+  ;; finds the distance of a segment.
     (sqrt (+ (expt (- (x-point (start-segment segment))
 		      (x-point (end-segment segment)))
 		   2)
 	     (expt (- (y-point (start-segment segment))
 		      (y-point (end-segment segment)))
 		   2))))
-  (+ (distance (top-segment rect))
-     (distance (right-segment rect))
-     (distance (bottom-segment rect))
-     (distance (left-segment rect))))
+
+(define (base rect)
+  (distance (car rect)))
+
+(define (height rect)
+  (cdr rect))
+
+(define (perimeter rect)
+  (+ (* (base rect)
+	2)
+     (* (height rect)
+	2)))
+
+(define (area rect)
+  (* (base rect)
+     (height rect)))
+
+;; Alternate representations
+
+(define (make-rect base height)
+  ;; base: a line segment.
+  ;; height: an int.
+  (cons (distance base) height))
+
+(define (base rect)
+  (car rect))
+
+;; height does not need to be redefined since it is a distance already.
