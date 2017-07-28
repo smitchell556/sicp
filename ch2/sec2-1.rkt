@@ -226,3 +226,40 @@
 (define (add m n)
   (lambda (f)
     (lambda (x) ((m f) ((n f) x)))))
+
+
+;;; Exercise 2.7
+;;; ------------
+;;; Define selectors upper-bound and lower-bound to complete the interval
+;;; implementation.
+
+(define (upper-bound interval)
+  (if (> (car interval) (cdr interval))
+      (car interval)
+      (cdr interval)))
+
+(define (lower-bound interval)
+  (if (< (car interval) (cdr interval))
+      (car interval)
+      (cdr interval)))
+
+
+;;; Exercise 2.8
+;;; ------------
+;;; Define sub-interval which subtracts two intervals.
+
+;; This implementation will subtract the smaller average resistance from the
+;; larger average resistance.
+
+(define (sub-interval x y)
+  (define (avg interval)
+    (/ (+ (upper-bound interval) (lower-bound interval))
+       2))
+  (let ((big (if (> (avg x) (avg y))
+                 x
+                 y))
+        (small (if (< (avg x) (avg y))
+                 x
+                 y)))
+    (make-interval (- (upper-bound big) (lower-bound small))
+                   (- (lower-bound big) (upper-bound small)))))
