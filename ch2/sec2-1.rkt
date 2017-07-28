@@ -131,3 +131,98 @@
   (car rect))
 
 ;; height does not need to be redefined since it is a distance already.
+
+
+;;; Exercise 2.4
+;;; ------------
+;;; Verify below representations of cons and car work. Write a definition for
+;;; cdr that falls in line with these.
+
+(define (cons x y)
+  (lambda (m) (m x y)))
+
+(define (car z)
+  (z (lambda (p q) p)))
+
+(car (cons 1 2))
+;; (car (lambda (m) (m 1 2)))
+;; ((lambda (m) (m 1 2)) (lambda (p q) p))
+;; ((lambda (p q) p) 1 2)
+;; 1
+
+(define (cdr z)
+  (z (lambda (p q) q)))
+
+
+;;; Exercise 2.5
+;;; ------------
+;;; Represent pairs of nonnegative integrs using only numbers and arithmetic
+;;; operations if we represent the pair a and b as the integer that is the
+;;; product 2^a * 3^b. Give definitions of cons, car, and cdr for this.
+
+(define (cons a b)
+  (* (expt 2 a)
+     (expt 3 b)))
+
+(define (car c)
+  (define (iter x count)
+    (if (not (= (remainder x 2) 0))
+	count
+	(iter (/ x 2) (inc count))))
+  (iter c 0))
+
+(define (cdr c)
+  (define (iter x count)
+    (if (not (= (remainder x 3) 0))
+	count
+	(iter (/ x 3) (inc count))))
+  (iter c 0))
+
+
+;;; Exercise 2.6
+;;; ------------
+;;; Define procedures one and two without using add-1 or zero. Hint: Use substitution
+;;; to evaluate (add-1 zero). Give a direct definition of the addition procedure
+;;; + (not in terms of repeated application of add-1).
+
+(define zero (lambda (f) (lambda (x) x)))
+
+(define (add-1 n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+
+(add-1 zero)
+;; (lambda (f) (lambda (x) (f ((zero f) x))))
+;; Further evaluating even though this is where I think it would normally stop
+;; (lambda (f) (lambda (x) (f ((lambda (x) x) x))))
+;; (lambda (f) (lambda (x) (f x))) -> this represents one
+(add-1 one)
+;; (lambda (f) (lambda (x) (f ((one f) x))))
+;; Further evaluating even though this is where I think it would normally stop
+;; (lambda (f) (lambda (x) (f ((lambda (x) (f x)) x))))
+;; (lambda (f) (lambda (x) (f (f x)))) -> this represents two.
+;; The *Church numerals* look like a function f performed n times on some value
+;; x where n would be the Church numeral.
+
+;; Using add-1 and zero
+(define one (add-1 zero))
+(define two (add-1 one))
+
+;; Without add-1 and zero
+(define one
+  (lambda (f)
+    (lambda (x) (f x))))
+
+(define two
+  (lambda (f)
+    (lambda (x) (f (f x)))))
+
+;; An add procedure for Church numerals would perform a function f on a value
+;; a + b times. So 2 + 2 would result in (f (f (f (f x)))). Basically the
+;; function needs to be passed to both a and b to get the right number of
+;; function calls, then x needs to be passed to the result of the combination
+;; of b and the function and that is passed to the result of the combination
+;; of a and the function.
+
+(define (add m n)
+  (lambda (f)
+    (lambda (x) ((m f) ((n f) x)))))
