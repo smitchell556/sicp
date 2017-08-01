@@ -263,3 +263,41 @@
                  y)))
     (make-interval (- (upper-bound big) (lower-bound small))
                    (- (lower-bound big) (upper-bound small)))))
+
+
+;;; Exercise 2.9
+;;; ------------
+;;; Show the sum (or difference) is a function of the combining of the width of
+;;; the arguments and that for multiplication (or division) is is not a
+;;; function of the combination of the width of the arguments.
+
+;; a = 5 +- 1: upper-bound = 6, lower-bound = 4
+;; b = 4 +-1: upper-bound = 5, lower-bound = 3
+;; a + b = c: upper-bound = 11, lower-bound = 7
+;; (11 + 7) / 2 = 9: c = 9 +- 2
+;; c = a.value + b.value +- (a.width + b.width)
+
+;; a * b = d: upper-bound = 30, lower-bound = 12
+;; (30 + 12) / 2 = 21: d = 21 +- 9
+;; 9 != 1 * 1
+
+
+;;; Exercise 2.10
+;;; -------------
+;;; Modify the code to check for an interval that spans zero and raises an error
+;;; if it occurs.
+
+;; Original
+
+(define (div-interval x y)
+  (mul-interval x 
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y)))))
+
+;; Modified
+
+(define (div-interval x y)
+  (cond 
+  (mul-interval x
+		(make-interval (/ 1.0 (upper-bound y))
+			       (/ 1.0 (lower-bound y)))))
