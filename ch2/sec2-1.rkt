@@ -248,21 +248,12 @@
 ;;; ------------
 ;;; Define sub-interval which subtracts two intervals.
 
-;; This implementation will subtract the smaller average resistance from the
-;; larger average resistance.
-
 (define (sub-interval x y)
-  (define (avg interval)
-    (/ (+ (upper-bound interval) (lower-bound interval))
-       2))
-  (let ((big (if (> (avg x) (avg y))
-                 x
-                 y))
-        (small (if (< (avg x) (avg y))
-                 x
-                 y)))
-    (make-interval (- (upper-bound big) (lower-bound small))
-                   (- (lower-bound big) (upper-bound small)))))
+  (add-interval x
+                (make-interval (* -1.0
+                                  (lower-bound y))
+                               (* -1.0
+                                  (upper-bound y)))))
 
 
 ;;; Exercise 2.9
@@ -297,7 +288,71 @@
 ;; Modified
 
 (define (div-interval x y)
-  (cond 
-  (mul-interval x
-		(make-interval (/ 1.0 (upper-bound y))
-			       (/ 1.0 (lower-bound y)))))
+  (cond ((and (> (upper-bound y) 0)
+              (< (lower-bound y) 0))
+         (error "interval spans 0"))
+        (else
+         (mul-interval x
+                       (make-interval (/ 1.0 (upper-bound y))
+                                      (/ 1.0 (lower-bound y)))))))
+
+
+;;; Exercise 2.11
+;;; -------------
+;;; Change mul-interval to handle all possible cases of intervals.
+
+;; Honestly this one just looks like busy work. Most of these "extra exercises"
+;; feel like busy work, but this one more so than the others. Skipping.
+
+
+;;; Exercise 2.12
+;;; -------------
+;;; Define a constructor make-center-percent that takes a center and percentage
+;;; tolerance and produces the desired interval. Define a selector percent that
+;;; produces the percentage tolerance for a given interval.
+
+;; Given:
+
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+
+;; New:
+
+(define (make-center-percent c p)
+  (let ((w (* c (/ p 100.0))))
+    (make-center-width c w)))
+
+(define (percent i)
+  (* (/ (width i)
+        (center i))
+     100))
+
+
+;;; Exercise 2.13
+;;; -------------
+;;; Show there is a simple formula for the percentage tolerance of the product
+;;; of two intervals in terms of the tolerances of the factors.
+
+;; lower-bound = lowx * lowy
+;; lower-bound using percent: low = center - width
+;;                                = center - (center / percent)
+;; lower-bound = (centerx - (centerx / percentx)) * (centery - (centery / percenty))
+;;             = (centerx * centery) - ((centerx * centery) / percentx) - ((centerx * centery) / percenty) + ((centerx * centery) / (percentx * percenty))
+;; upper-bound = (centerx + (centerx / percentx)) * (centery + (centery / percenty))
+;;             = (centerx * centery) + ((centerx * centery) / percentx) + ((centerx * centery) / percenty) + ((centerx * centery) / (percentx * percenty))
+
+;; center = (upper-bound + lower-bound) / 2
+;;        = (((2 * centerx * centery) + (2 * ((centerx * centery) / (percentx * percenty)))) / 2
+;;        = (centerx * centery) * (1 + (1 / (percentx * percenty)))
+
+;; percent = ((center - lower-bound) / center) * 100
+;;         = ((((centerx * centery) + ((centerx * centery) / (percentx * percenty))) - ((centerx * centery) - ((centerx * centery) / percentx) - ((centerx * centery) / percenty) + ((centerx * centery) / (percentx * percenty)))) / ((centerx * centery) * (1 + (1 / (percentx * percenty))))) * 100
+;;         = ((centerx * centery) + ((centerx * centery) / (percentx * percenty)) - (centerx * centery) + ((centerx * centery) / percentx) + ((centerx * centery) / percenty) - ((centerx * centery) / (percentx * percenty)) / ((centerx * centery) * ((centerx * centery) / (percentx * percenty)))) * 100
+;;         = ((((centerx * centery) / percentx) + ((centerx * centery) / percenty)) / ((centerx * centery) * ((centerx * centery) / (percentx * percenty)))) * 100
+;;         = (((centerx * centery) * ((percentx + percenty) / (percentx * percenty))) / ((centerx * centery) * (1 + (1 / (percentx * percenty))))) * 100
+;;         = (((percentx + percenty) / (percentx * percenty)) * ((percentx * percenty) / (1 + (percentx * percenty)))) * 100
+;;         = ((percentx + percenty) / (1 + (percentx * percenty))) * 100
