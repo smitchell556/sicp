@@ -356,3 +356,76 @@
 ;;         = (((centerx * centery) * ((percentx + percenty) / (percentx * percenty))) / ((centerx * centery) * (1 + (1 / (percentx * percenty))))) * 100
 ;;         = (((percentx + percenty) / (percentx * percenty)) * ((percentx * percenty) / (1 + (percentx * percenty)))) * 100
 ;;         = ((percentx + percenty) / (1 + (percentx * percenty))) * 100
+
+
+;;; Exercise 2.14
+;;; -------------
+;;; Demonstrate the two equivalent equations (algebraically) result in different values.
+
+;; Given:
+
+(define (par1 r1 r2)
+  (div-interval (mul-interval r1 r2)
+                (add-interval r1 r2)))
+(define (par2 r1 r2)
+  (let ((one (make-interval 1 1))) 
+    (div-interval one
+                  (add-interval (div-interval one r1)
+                                (div-interval one r2)))))
+
+(define a (make-center-percent 5 2))
+(define b (make-center-percent 10 2))
+
+(define divaa (div-interval a a))
+;; (mcons 0.9607843137254903 1.040816326530612)
+(center divaa)
+;; 1.000800320128051
+(percent divaa)
+;; 3.9984006397440868
+
+(define divab (div-interval a b))
+;; (mcons 0.48039215686274517 0.520408163265306)
+(center divab)
+;; 0.5004001600640255
+(percent divab)
+;; 3.9984006397440868
+
+(par1 a b)
+;; (mcons 3.138562091503269 3.538775510204081)
+(par2 a b)
+;; (mcons 3.266666666666667 3.3999999999999995)
+
+;; Notice that an interval divided by itself does not have a center of 1.
+
+
+;;; Exercise 2.15
+;;; -------------
+;;; Explain why par2 is more accurate than par1.
+
+;; As shown in 2.14, division of an interval by itself results in an
+;; approximation of 1, which is not completely accurate. Floating point
+;; arithmetic results in approximated values that are very close to the actual
+;; value, but are not exact. By removing repeated intervals and using one where
+;; possible, the floating point arithmetic approximations will be more exact.
+
+(define one (make-interval 1 1))
+(div-interval one one)
+;; (mcons 1.0 1.0)
+
+
+;;; Exercise 2.16
+;;; -------------
+;;; Explain why equivalent algebraic expressions can have different answers. Can
+;;; an interval-arithmetic package be created that can overcome this problem?
+
+;; Interval arithmetic can result in approximations of intervals (see 2.14 where
+;; a is divided by itself). These approximations can cause a drift from the
+;; actual value that result in an inexact answer. By reducing duplicate
+;; intervals from algabreic equations, the variance seen in repeated intervals,
+;; which should act the same but may not (again see 2.14 division of a by
+;; itself), is reduced to 0.
+
+;; To devise an interval-arithmetic package that can reduce equations to using
+;; only one copy of each variable would be extremely difficult. The package
+;; would need to reduce the equation first, then apply arithmetic. The problem
+;; is not every equation can be rewritten to avoid repeating variables.
