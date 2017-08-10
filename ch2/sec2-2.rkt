@@ -83,3 +83,74 @@
 	  (else
 	   (get-parity-y (cdr y)))))
   (cons x (get-parity-y y)))
+
+
+;;; Exercise 2.21
+;;; -------------
+;;; Complete both implementations of square-list.
+
+(define (square-list items)
+  (if (null? items)
+      nil
+      (cons <??> <??>)))
+(define (square-list items)
+  (map <??> <??>))
+
+(define (square-list items)
+  (if (null? items)
+      items
+      (cons (* (car items) (car items)) (square-list (cdr items)))))
+(define (square-list items)
+  (map (lambda (x) (* x x)) items))
+
+
+;;; Exercise 2.22
+;;; -------------
+;;; Explain why the following procedures create a reverse of the intended
+;;; list.
+
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) 
+              (cons (square (car things))
+                    answer))))
+  (iter items '()))
+
+;; The problem is the car of the list is being added in the wrong order.
+;; The last element of things should be cons'd onto answer at each iteration.
+;; The list is growing from the tail, not the head.
+
+(square-list list(1 2))
+;; (iter (1 . 2) '())
+;; (iter (iter (2) (1 . ())))
+;; (iter (iter (iter () (4 . (1 . ())))))
+;; (iter (iter (4 . (1 . ()))))
+;; (iter (4 . (1 . ())))
+;; (4 . (1 . ()))
+
+(define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+                    (square (car things))))))
+  (iter items '()))
+
+;; This results in the right order, but car and cdr wont work as expected.
+;; The cdr of a list produced by this procedure will be the last element of the
+;; list, while the car of the list will be the list of all elements excluding
+;; the last element. This also results in the first element of the list being
+;; nil.
+
+(square-list list(1 2))
+;; (iter (1 . 2) '())
+;; (iter (iter (2) (() . 1)))
+;; (iter (iter (iter () ((() . 1) . 4))))
+;; (iter (iter ((() . 1) . 4)))
+;; (iter ((() . 1) . 4))
+;; ((() . 1) . 4)
+
+;; The list should look like (1 . (4 . ()))
