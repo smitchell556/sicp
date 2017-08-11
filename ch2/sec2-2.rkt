@@ -154,3 +154,14 @@
 ;; ((() . 1) . 4)
 
 ;; The list should look like (1 . (4 . ()))
+
+
+;;; Exercise 2.23
+;;; -------------
+;;; Give an implementation of for-each.
+
+(define (for-each f items)
+  (cond ((null? items) items)
+        (else
+         (f (car items))
+         (for-each f (cdr items)))))
