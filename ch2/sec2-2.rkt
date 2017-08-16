@@ -165,3 +165,26 @@
         (else
          (f (car items))
          (for-each f (cdr items)))))
+
+
+;;; Exercise 2.24
+;;; -------------
+;;; Give the results of (list 1 (list 2 (list 3 4))) from the intereter,
+;;; the box and pointer structure, and the tree structure.
+
+;; Interpreter:
+;; (1 (2 (3 4)))
+
+;; Box and pointer:
+;; ## -> ## -> ## -> #X
+;; |     |     |     |
+;; 1     2     3     4
+
+;; Tree:
+;;               (1 (2 (3 4)))
+;;                 /       \
+;;                1      (2 (3 4))
+;;                        /    \
+;;                       2    (3 4)
+;;                            /   \
+;;                           3     4
