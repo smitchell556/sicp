@@ -188,3 +188,54 @@
 ;;                       2    (3 4)
 ;;                            /   \
 ;;                           3     4
+
+
+;;; Exercise 2.25
+;;; -------------
+;;; Give combinations of cars and cdrs that will pick 7 from each of the
+;;; following lists.
+
+(define get-7 (list 1 3 (list 5 7) 9))
+(car (cdr (car (cdr (cdr get-7)))))
+;; 7
+
+(define get-7 (list (list 7)))
+(car (car get-7))
+;; 7
+
+(define get-7 (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 7)))))))
+(car (cdr (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr get-7))))))))))))
+;; 7
+
+
+;;; Exercise 2.26
+;;; -------------
+;;; Define x and y to be two lists:
+;;; (define x (list 1 2 3))
+;;; (define y (list 4 5 6))
+;;; What result is printed by the interpreter for the following expressions.
+
+(append x y)
+;; (1 2 3 4 5 6)
+
+
+(cons x y)
+;; ((1 2 3) 4 5 6)
+
+
+(list x y)
+;; ((1 2 3) (4 5 6))
+
+
+;;; Exercise 2.27
+;;; -------------
+;;; Modify reverse to produce deep-reverse which reverses nested lists.
+
+;; Original:
+(define (reverse items)
+  (if (null? (cdr items))
+      (car items)
+      (cons (reverse (cdr items)) (car items))))
+
+;; Modified:
+(define (deep-reverse items)
