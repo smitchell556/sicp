@@ -239,3 +239,10 @@
 
 ;; Modified:
 (define (deep-reverse items)
+  (if (null? (cdr items))
+      (if (pair? (car items))
+          (deep-reverse (car items))
+          (car items))
+      (cons (deep-reverse (cdr items)) (if (pair? (car items))
+                                           (deep-reverse (car items))
+                                           (car items)))))
