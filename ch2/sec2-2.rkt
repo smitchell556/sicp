@@ -246,3 +246,91 @@
       (cons (deep-reverse (cdr items)) (if (pair? (car items))
                                            (deep-reverse (car items))
                                            (car items)))))
+
+
+;;; Exercise 2.28
+;;; -------------
+;;; Write a procedure fringe that takes a tree as an argument and returns a list
+;;; whose elements are all leaves of the tree arranged in left to right order.
+
+(define (fringe tree)
+  (let ((x (if (pair? (car tree))
+               (fringe (car tree))
+               (car tree))))
+    (if (null? (cdr tree))
+        x
+        (cons x (fringe (cdr tree))))))
+
+
+;;; Exercise 2.29
+;;; -------------
+;;; Binary mobile questions.
+
+;; Given: 
+
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+;;; a. Write left-branch and right-branch procedures, which return the branches
+;;;    of a mobile, and branch-length and branch-structure, which return the
+;;;    components of a branch.
+
+(define (left-branch mobile)
+  (car mobile))
+  
+(define (right-branch mobile)
+  (cadr mobile))
+  
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (cadr branch))
+
+
+;;; b. Define a procedure total-weight that returns the total weight of a
+;;;    mobile.
+
+(define (total-weight mobile)
+  (if (pair? mobile)
+      (+ (total-weight (branch-structure (left-branch mobile)))
+         (total-weight (branch-structure (right-branch mobile))))
+      mobile))
+
+
+;;; c. Define a procedure balanced that returns a boolean which determines if
+;;;    the mobile has equal torque on both sides.
+
+(define (balanced mobile)
+  (define (inner mobile)
+    (if (not (pair? mobile))
+        mobile
+        (let ((lw (inner (branch-structure (left-branch mobile))))
+              (rw (inner (branch-structure (right-branch mobile)))))
+          (cond
+           ((or (eq? lw #f) (eq? rw #f)) #f)
+           ((eq? (* (branch-length (left-branch mobile))
+                    lw)
+                 (* (branch-length (right-branch mobile))
+                    rw))
+            (+ lw rw))
+           (else #f)))))
+  (if (eq? (inner mobile) #f)
+      #f
+      #t))
+
+
+;;; d. If make-mobile and make-branch are changed to use cons instead of list,
+;;;    how much does the program need to be changed to fit the new
+;;;    representation?
+
+;; Any selecters that use cadr should be modified to cdr.
+
+(define (right-branch mobile)
+  (cdr mobile))
+
+(define (branch-structure branch)
+  (cdr branch))
