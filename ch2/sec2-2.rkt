@@ -401,4 +401,5 @@
 ;; gives (() (1) (2) (1 2)) (Note: the combination of the empty list with (2) is
 ;; just (2)). To create a list of all subsets of (1 2 3) would follow the same
 ;; process by using all subsets of (1 2) to get
-;; (() (1) (2) (1 2) (3) (1 3) (2 3) (1 2 3)).
+;; (() (1) (2) (1 2) (3) (1 3) (2 3) (1 2 3)). This process can be repeated
+;; ad nauseum for each additional item in a list.
