@@ -334,3 +334,71 @@
 
 (define (branch-structure branch)
   (cdr branch))
+
+
+;;; Exercise 2.30
+;;; -------------
+;;; Define procedure square-tree with and without using map.
+
+;; Without map:
+(define (square-tree tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (* tree tree))
+        (else (cons (square-tree (car tree))
+                    (square-tree (cdr tree))))))
+
+;; With map:
+(define (square-tree tree)
+  (map (lambda (sub-tree)
+	 (if (pair? sub-tree)
+	     (square-tree sub-tree)
+	     (* sub-tree sub-tree)))
+       tree))
+
+
+;;; Exercise 2.31
+;;; -------------
+;;; Abstract the answer from 2.30 to produce a procedure tree-map which
+;;; square-tree could be defined as:
+;;; (define (square-tree tree) (tree-map square tree))
+
+(define (tree-map f tree)
+  (map (lambda (sub-tree)
+	 (if (pair? sub-tree)
+	     (tree-map f sub-tree)
+	     (f sub-tree)))
+       tree))
+
+
+;;; Exercise 2.32
+;;; -------------
+;;; Complete the definition of a procedure that generates the set of subsets
+;;; of a set and give an explanation of why it works:
+
+(define (subsets s)
+  (if (null? s)
+      (list nil)
+      (let ((rest (subsets (cdr s))))
+        (append rest (map <??> rest)))))
+
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest
+		(map (lambda (item) (list (car s) item))
+		     rest)))))
+
+;; For each item in the original list, all possible subsets either include the
+;; item or they don't. The procedure gets all possible subsets without each
+;; item, and then combines that list with a new list that includes the item
+;; with each subset in that list.
+
+;; For example, assume there are two lists; (1) and (1 2). For the first list,
+;; (1) there are only two subsets. The empty set and (1), or (() (1)). If we look
+;; at the second list, (1 2) we can create all subsets of this list by appending
+;; all subsets of (1) with the combination of (2) and every subset of (1). This
+;; gives (() (1) (2) (1 2)) (Note: the combination of the empty list with (2) is
+;; just (2)). To create a list of all subsets of (1 2 3) would follow the same
+;; process by using all subsets of (1 2) to get
+;; (() (1) (2) (1 2) (3) (1 3) (2 3) (1 2 3)).
