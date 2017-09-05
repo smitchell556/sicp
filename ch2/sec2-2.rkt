@@ -424,3 +424,29 @@
   (accumulate <??> 0 sequence))
 (define (length sequence)
   (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+
+
+;;; Exercise 2.34
+;;; -------------
+;;; Fill in the following template to produce a procedure that evaluates a
+;;; polynomial using Horner's rule. Assume the coefficients are arranged
+;;; in a sequance from a_0 to a_n.
+
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) <??>)
+              0
+              coefficient-sequence))
+
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) (+ this-coeff
+                                                   (* x higher-terms)))
+              0
+              coefficient-sequence))
+
+
+;;; Exercise 2.35
+;;; -------------
+;;; Redefine count-leaves as an accumulation.
+
+(define (count-leaves t)
+  (accumulate <??> <??> (map <??> <??>)))
