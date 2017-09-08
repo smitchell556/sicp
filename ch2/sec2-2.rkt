@@ -91,7 +91,7 @@
 
 (define (square-list items)
   (if (null? items)
-      nil
+      '()
       (cons <??> <??>)))
 (define (square-list items)
   (map <??> <??>))
@@ -143,7 +143,7 @@
 ;; The cdr of a list produced by this procedure will be the last element of the
 ;; list, while the car of the list will be the list of all elements excluding
 ;; the last element. This also results in the first element of the list being
-;; nil.
+;; '().
 
 (square-list list(1 2))
 ;; (iter (1 . 2) '())
@@ -377,7 +377,7 @@
 
 (define (subsets s)
   (if (null? s)
-      (list nil)
+      (list '())
       (let ((rest (subsets (cdr s))))
         (append rest (map <??> rest)))))
 
@@ -411,9 +411,9 @@
 ;;; some basic list-manipulation operations as accumulations.
 
 (define (map p sequence)
-  (accumulate (lambda (x y) <??>) nil sequence))
+  (accumulate (lambda (x y) <??>) '() sequence))
 (define (map p sequence)
-  (accumulate (lambda (x y) (cons (p x) y)) nil sequence))
+  (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
 
 (define (append seq1 seq2)
   (accumulate cons <??> <??>))
@@ -450,3 +450,49 @@
 
 (define (count-leaves t)
   (accumulate <??> <??> (map <??> <??>)))
+
+(define (count-leaves t)
+  (accumulate + 0 (map (lambda (x) 1) (enumerate-tree t))))
+
+
+;;; Exercise 2.36
+;;; -------------
+;;; Fill in the missing expressions in the following definition of accumulate-n.
+
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init <??>)
+            (accumulate-n op init <??>))))
+
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+
+
+;;; Exercise 2.37
+;;; -------------
+;;; Fill in the missing expressions in the following procedures for computing
+;;; the matrix operations. (The procedure accumulate-n is defined in exercise
+;;; 2.36.)
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))         ;map here is equivalent to accumulate-n
+
+(define (matrix-*-vector m v)
+  (map <??> m))
+(define (transpose mat)
+  (accumulate-n <??> <??> mat))
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map <??> m)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (x) (dot-product v x)) m))
+(define (transpose mat)
+  (accumulate-n <??> <??> mat))
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map <??> m)))
