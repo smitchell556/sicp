@@ -492,7 +492,64 @@
 (define (matrix-*-vector m v)
   (map (lambda (x) (dot-product v x)) m))
 (define (transpose mat)
-  (accumulate-n <??> <??> mat))
+  (accumulate-n cons '() mat))
 (define (matrix-*-matrix m n)
   (let ((cols (transpose n)))
-    (map <??> m)))
+    (map (lambda (x) (matrix-*-vector cols x)) m)))
+
+
+;;; Exercise 2.38
+;;; -------------
+;;; Determine the values of the following function calls. Also, give the
+;;; property of ``op`` which guarantees fold-right and fold-left will produce
+;;; the same values for any sequence.
+
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+
+(fold-right / 1 (list 1 2 3))
+;; (/ 1 (fold-right / 1 (2 3)))
+;; (/ 1 (/ 2 (fold-right / 1 (3))))
+;; (/ 1 (/ 2 (/ 3 (fold-right / 1 ()))))
+;; (/ 1 (/ 2 (/ 3 1)))
+;; (/ 1 (/ 2 3))
+;; (/ 1 2/3)
+;; 3/2
+
+(fold-left / 1 (list 1 2 3))
+;; (iter 1 (1 2 3))
+;; (iter 1 (2 3))
+;; (iter 1/2 (3))
+;; (iter 1/6 ())
+;; 1/6
+
+(fold-right list '() (list 1 2 3))
+;; (list 1 (fold-right list '() (2 3)))
+;; (list 1 (list 2 (fold-right list '() (3))))
+;; (list 1 (list 2 (list 3 (fold-right list '() ()))))
+;; (list 1 (list 2 (list 3 ())))
+;; (list 1 (list 2 (3 ())))
+;; (list 1 (2 (3 ())))
+;; (1 (2 (3 ())))
+
+(fold-left list '() (list 1 2 3))
+;; (iter () (1 2 3))
+;; (iter (() 1) (2 3))
+;; (iter ((() 1) 2) (3))
+;; (((() 1) 2) 3)
+
+;; To ensure fold-right and fold-left produce the same values, ``op`` must have
+;; the property that when used on a sequence, the order of the sequence does
+;; not matter. For example, addition or multiplication would result in the same
+;; values.
+
+(fold-right + 0 (list 1 2 3))
+;; 6
+
+(fold-left + 0 (list 1 2 3))
+;; 6
