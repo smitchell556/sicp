@@ -553,3 +553,19 @@
 
 (fold-left + 0 (list 1 2 3))
 ;; 6
+
+
+;;; Exercise 2.39
+;;; -------------
+;;; Complete the definitions of reverse in terms of fold-right and fold-left.
+
+(define (reverse sequence)
+  (fold-right (lambda (x y) <??>) '() sequence))
+(define (reverse sequence)
+  (fold-left (lambda (x y) <??>) '() sequence))
+
+(define (reverse sequence)
+  (fold-right (lambda (x y) (append y (list x))) '() sequence))
+
+(define (reverse sequence)
+  (fold-left (lambda (x y) (cons y x)) '() sequence))
