@@ -569,3 +569,54 @@
 
 (define (reverse sequence)
   (fold-left (lambda (x y) (cons y x)) '() sequence))
+
+
+;;; Exercise 2.40
+;;; -------------
+;;; Define a procedure unique-pairs that, given an integer n, generates the
+;;; sequence of pairs (i, j) with 1 <= j < i <= n. Simplify prime-sum-pairs
+;;; using unique-pairs.
+
+;; Given:
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+(define (flatmap proc seq)
+  (accumulate append '() (map proc seq)))
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      '()
+      (cons low (enumerate-interval (+ low 1) high))))
+;; ----
+
+(define (unique-pairs n)
+  (flatmap
+   (lambda (i) (map
+		(lambda (j) (list i j))
+		(enumerate-interval 1 (- i 1))))
+   (enumerate-interval 1 n)))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum
+       (filter prime-sum?
+               (unique-pairs n))))
+
+;;; Exercise 2.41
+;;; -------------
+;;; Define a procedure to find all triples of distinct positive integers i, j,
+;;; and k less than or equal to an integer n that sum to a given integer s.
+
+(define (unique-triplets n)
+  (flatmap
+   (lambda (p) (map
+		(lambda (k) (list (car p) (cadr p) k))
+		(enumerate-interval 1 (- (cadr p) 1))))
+   (unique-pairs n)))
+
+(define (triplet-sum n s)
+  (filter (lambda (p) (= s (accumulate + 0 p)))
+	  (unique-triplets n)))
