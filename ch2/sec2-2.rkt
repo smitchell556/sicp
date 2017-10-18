@@ -696,3 +696,59 @@
   
   (let ((queen (car (filter (lambda (q) (= (queen-col q) col)) positions))))
     (iter-safe? (queen-row queen) (queen-col queen) positions)))
+
+
+;;; Exercise 2.43
+;;; -------------
+;;; Analyze why the following modification to queens results in a much slower
+;;; implementation and show how it compares to 8 queens of the original that
+;;; takes time T.
+
+;; Modified:
+
+(define (queens board-size)
+  (define (queen-cols k)  
+    (if (= k 0)
+        (list empty-board)
+        (filter
+         (lambda (positions) (safe? k positions))
+	 (flatmap
+	  (lambda (new-row)
+	    (map (lambda (rest-of-queens)
+		   (adjoin-position new-row k rest-of-queens))
+		 (queen-cols (- k 1))))
+	  (enumerate-interval 1 board-size)))))
+  (queen-cols board-size))
+
+;; The reason why the modified queens takes longer is because for each i in
+;; (enumerate-interval 1 board-size), (queen-cols (- k 1)) is called, so the
+;; set of legal queens for k-1 is computed i times FOR EACH k! The algorithm
+;; is changed from a linearly recursive process to a tree recursive process.
+
+;; If the original (queens 8) has time complexity T is only called once per
+;; k, then the modified (queens 8) has time complexity T^8 since each level
+;; calls (queen-cols (- k 1)) 8 times.
+
+;;; Exercise 2.44
+;;; -------------
+;;; Define the procedure up-split used by corner-split.
+
+(define (up-split painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (up-split painter (- n 1))))
+	(below painter (beside smaller smaller)))))
+
+
+;;; Exercise 2.45
+;;; -------------
+;;; Define the procedure split.
+
+(define (split big-orientation small-orientation)
+  (define (iter-split painter n)
+    (if (= n 0)
+	painter
+	(let ((smaller (iter-split painter (- n 1))))
+	  (big-orientation painter (small-orientation smaller)))))
+  (lambda (painter n)
+    (iter-split painter n)))
