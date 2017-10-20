@@ -752,3 +752,64 @@
 	  (big-orientation painter (small-orientation smaller)))))
   (lambda (painter n)
     (iter-split painter n)))
+
+
+;;; Exercise 2.46
+;;; -------------
+;;; Make vector procedures.
+
+(define (make-vect x y)
+  (cons x y))
+
+(define (xcor-vect v)
+  (car v))
+
+(define (ycor-vect v)
+  (cdr v))
+
+(define (proc-vect proc v1 v2)
+  (make-vect (proc (xcor-vect v1)
+                   (xcor-vect v2))
+             (proc (ycor-vect v1)
+                   (ycor-vect v2))))
+
+(define (add-vect v1 v2)
+  (proc-vect + v1 v2))
+
+(define (sub-vect v1 v2)
+  (proc-vect - v1 v2))
+
+(define (scale-vect c v)
+  (make-vect (* c (xcor-vect v))
+             (* c (ycor-vect v))))
+
+
+;;; Exercise 2.47
+;;; -------------
+;;; Provide the appropriate selectors for the given implementations of
+;;; make-frame.
+
+(define (make-frame origin edge1 edge2)
+  (list origin edge1 edge2))
+
+(define (origin-frame frame)
+  (car frame))
+
+(define (edge1-frame frame)
+  (cadr frame))
+
+(define (edge2-frame frame)
+  (caddr frame))
+
+
+(define (make-frame origin edge1 edge2)
+  (cons origin (cons edge1 edge2)))
+
+(define (origin-frame frame)
+  (car frame))
+
+(define (edge1-frame frame)
+  (cadr frame))
+
+(define (edge2-frame frame)
+  (cddr frame))
