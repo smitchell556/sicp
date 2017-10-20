@@ -813,3 +813,161 @@
 
 (define (edge2-frame frame)
   (cddr frame))
+
+
+;;; Exercise 2.48
+;;; -------------
+;;; Define constructor make-segment and selectors start-segment and
+;;; end-segment.
+
+(define (make-segment v1 v2)
+  (cons v1 v2))
+
+(define (start-segment s)
+  (car s))
+
+(define (end-segment s)
+  (cdr s))
+
+
+;;; Exercise 2.49
+;;; -------------
+;;; Use segments-> painter to define the following primitive painters.
+
+(define (segments->painter segment-list)
+  (lambda (frame)
+    (for-each
+     (lambda (segment)
+       (draw-line
+        ((frame-coord-map frame) (start-segment segment))
+        ((frame-coord-map frame) (end-segment segment))))
+     segment-list)))
+
+;;; a) Painter that draws the outline of the designated frame.
+
+(define outline
+  (let ((bl (make-vect 0.0 0.0))
+        (br (make-vect 1.0 0.0))
+        (tr (make-vect 1.0 1.0))
+        (tl (make-vect 0.0 1.0)))
+    (let ((left (make-segment bl tl))
+          (right (make-segment br tr))
+          (bottom (make-segment bl br))
+          (top (make-segment tl tr)))
+      (segments->painter (list left right bottom top)))))
+
+;;; b) Painter that draws an "X" by connecting opposite corners of the frame.
+
+(define X
+  (let ((bl (make-vect 0.0 0.0))
+        (br (make-vect 1.0 0.0))
+        (tr (make-vect 1.0 1.0))
+        (tl (make-vect 0.0 1.0)))
+    (let ((bl-tr (make-segment bl tr))
+          (br-tl (make-segment br tl)))
+      (segments->painter (list bl-tr br-tl)))))
+
+;;; c) Painter that draws a diamond shape by connecting midpoints of the sides
+;;;    of the frame.
+
+(define diamond
+  (let ((b (make-vect 0.5 0.0))
+        (t (make-vect 0.5 1.0))
+        (l (make-vect 0.0 0.5))
+        (r (make-vect 1.0 0.5)))
+    (let ((bl (make-segment b l))
+          (br (make-segment b r))
+          (tl (make-segment t l))
+          (tr (make-segment t r)))
+      (segments->painter (list bl br tl tr)))))
+
+;;; d) The wave painter
+
+;; ... skipping since it's more an exercise in busy work than it is in
+;; understanding concepts.
+
+
+;;; Exercise 2.50
+;;; -------------
+;;; Define transformation flip-horiz and transformations that rotate painters
+;;; counterclockwise by 180 degrees and 270 degrees.
+
+;; Given:
+
+(define (transform-painter painter origin corner1 corner2)
+  (lambda (frame)
+    (let ((m (frame-coord-map frame)))
+      (let ((new-origin (m origin)))
+        (painter
+         (make-frame new-origin
+                     (sub-vect (m corner1) new-origin)
+                     (sub-vect (m corner2) new-origin)))))))
+
+(define (flip-horiz painter)
+  (transform-painter painter
+                     (make-vect 1.0 0.0)
+                     (make-vect 0.0 0.0)
+                     (make-vect 1.0 1.0)))
+
+(define (rotate180 painter)
+  (transform-painter painter
+                     (make-vect 1.0 1.0)
+                     (make-vect 0.0 1.0)
+                     (make-vect 1.0 0.0)))
+
+(define (rotate270 painter)
+  (transform-painter painter
+                     (make-vect 0.0 1.0)
+                     (make-vect 0.0 0.0)
+                     (make-vect 1.0 1.0)))
+
+
+;;; Exercise 2.51
+;;; -------------
+;;; Define below that takes two painters as arguments. Write in two ways,
+;;; in the manner of beside and in terms of beside with a rotation operation(s).
+
+;; Given:
+
+(define (beside painter1 painter2)
+  (let ((split-point (make-vect 0.5 0.0)))
+    (let ((paint-left
+           (transform-painter painter1
+                              (make-vect 0.0 0.0)
+                              split-point
+                              (make-vect 0.0 1.0)))
+          (paint-right
+           (transform-painter painter2
+                              split-point
+                              (make-vect 1.0 0.0)
+                              (make-vect 0.5 1.0))))
+      (lambda (frame)
+        (paint-left frame)
+        (paint-right frame)))))
+
+(define (below painter1 painter2)
+  (let ((split-point (make-vect 0.0 0.5)))
+    (let ((paint-bottom
+           (transform-painter painter1
+                              (make-vect 0.0 0.0)
+                              (make-vect 1.0 0.0)
+                              split-point))
+          (paint-top
+           (transform-painter painter2
+                              split-point
+                              (make-vect 1.0 0.5)
+                              (make-vect 0.0 1.0))))
+      (lambda (frame)
+        (paint-bottom frame)
+        (paint-top frame)))))
+
+(define (below painter1 painter2)
+  (rotate90
+   (beside
+    (rotate270 painter1)
+    (rotate270 painter2))))
+
+
+;;; Exercise 2.52
+;;; -------------
+;;; Skipping since it's busy work.
