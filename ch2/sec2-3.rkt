@@ -54,7 +54,7 @@
 ;; to car. car returns the first element of the list (quote abracadabra) which
 ;; is "quote".
 
-;; (car '' abracadabra)
+;; (car ''abracadabra)
 ;; (car (quote (quote abracadabra)))
 ;; (car (quote abracadabra))
 ;; quote
