@@ -161,3 +161,27 @@
 	((=number? exponent 1) base)
 	((and (number? base) (number? exponent)) (expt base exponent))
 	(else (list '** base exponent))))
+
+
+;;; Exercise 2.57
+;;; -------------
+;;; Extend the differentiation program to handle sums and products of arbitrary
+;;; numbers of (two or more) terms. Do not change deriv.
+
+(define (augend s)
+  (define (recursive-augend s)
+    (cond ((null? s) '())
+          (else (append (list (car s)) (recursive-augend (cdr s))))))
+  (let ((aug (cddr s)))
+    (if (null? (cdr aug))
+        (car aug)
+        (append '(+) (recursive-augend aug)))))
+
+(define (multiplicand p)
+  (define (recursive-multiplicand p)
+    (cond ((null? p) '())
+          (else (append (list (car p)) (recursive-multiplicand (cdr p))))))
+  (let ((mult (cddr p)))
+    (if (null? (cdr mult))
+        (car mult)
+        (append '(*) (recursive-multiplicand mult)))))
