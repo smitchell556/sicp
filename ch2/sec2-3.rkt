@@ -169,19 +169,172 @@
 ;;; numbers of (two or more) terms. Do not change deriv.
 
 (define (augend s)
-  (define (recursive-augend s)
-    (cond ((null? s) '())
-          (else (append (list (car s)) (recursive-augend (cdr s))))))
   (let ((aug (cddr s)))
     (if (null? (cdr aug))
         (car aug)
-        (append '(+) (recursive-augend aug)))))
+        (cons '+ aug))))
 
 (define (multiplicand p)
-  (define (recursive-multiplicand p)
-    (cond ((null? p) '())
-          (else (append (list (car p)) (recursive-multiplicand (cdr p))))))
   (let ((mult (cddr p)))
     (if (null? (cdr mult))
         (car mult)
-        (append '(*) (recursive-multiplicand mult)))))
+        (cons '* mult))))
+
+
+;;; Exercise 2.58
+;;; -------------
+;;; Modify the differentiation program to handle infix operators.
+
+;;; a) Show how to do this with forms like:
+;;;    (x + (3 * (x + (y + 2))))
+;;;    Assume + and * always take two arguments and that expressions are
+;;;    fully parenthesized.
+
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list  m1 '* m2))))
+
+(define (sum? x)
+  (and (pair? x) (eq? (cadr x) '+)))
+
+(define (addend s) (car s))
+
+(define (augend s)
+  (let ((aug (cddr s)))
+    (if (null? (cdr aug))
+        (car aug)
+        aug)))
+
+(define (product? x)
+  (and (pair? x) (eq? (cadr x) '*)))
+
+(define (multiplier p) (car p))
+
+(define (multiplicand p)
+  (let ((mult (cddr p)))
+    (if (null? (cdr mult))
+        (car mult)
+        mult)))
+
+(define (exponentiation? x)
+  (and (pair? x) (eq? (cadr x) '**)))
+
+(define (base e) (car e))
+
+(define (exponent e) (caddr e))
+
+(define (make-exponentiation base exponent)
+  (cond ((=number? exponent 0) 1)
+	((=number? exponent 1) base)
+	((and (number? base) (number? exponent)) (expt base exponent))
+	(else (list base '** exponent))))
+
+;;; b) Show how to do this with forms like:
+;;;    (x + 3 * (x + y + 2))
+;;;    which drops unnecessary parentheses and assumes that multiplication
+;;;    is done before addition.
+
+;; I actually solved this in part a) unknowingly.
+
+
+;;; Exercise 2.59
+;;; -------------
+;;; Implement the union-set operation for the unordered-list representation of
+;;; sets.
+
+;; Given:
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((equal? x (car set)) true)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set)
+  (if (element-of-set? x set)
+      set
+      (cons x set)))
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)        
+         (cons (car set1)
+               (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))
+
+;; Solution:
+
+(define (union-set set1 set2)
+  (cond ((null? set2) set1)
+        ((null? set1) set2)
+        (else
+         (let ((s1 (adjoin-set (car set2) set1)))
+           (union-set s1 (cdr set2))))))
+
+
+;;; Exercise 2.60
+;;; -------------
+;;; Rewrite the above procedures while allowing duplicates.
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((equal? x (car set)) true)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set)
+      (cons x set))
+
+(define (intersection-set set1 set2)
+  (define (i-set set1 set2)
+    (cond ((or (null? set1) (null? set2)) '())
+          ((element-of-set? (car set1) set2)        
+           (cons (car set1)
+                 (i-set (cdr set1) set2)))
+          (else (i-set (cdr set1) set2))))
+  (append (i-set set1 set2) (i-set set2 set1)))
+
+(define (union-set set1 set2)
+  (append set1 set2))
+
+
+;;; Exercise 2.61
+;;; -------------
+;;; Give an implementation of adjoin-set using the ordered representation.
+
+;; Given:
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((= x (car set)) true)
+        ((< x (car set)) false)
+        (else (element-of-set? x (cdr set)))))
+
+;; Solution:
+
+(define (adjoin-set x set)
+  (cond ((or (null? set) (< x (car set))) (cons x set))
+        ((= x (car set)) set)
+        (else (cons (car set) (adjoin-set x (cdr set))))))
+
+
+;;; Exercise 2.61
+;;; -------------
+;;; Give a Theta(n) implementation of union-set for sets represented as
+;;; ordered lists.
+
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+        ((null? set2) set1)
+        (else (let ((x1 (car set1))
+                    (x2 (car set2)))
+                (cond ((= x1 x2) (cons x1 (union-set (cdr set1) (cdr set2))))
+                      ((< x1 x2) (cons x1 (union-set (cdr set1) set2)))
+                      (else (cons x2 (union-set set1 (cdr set2)))))))))
