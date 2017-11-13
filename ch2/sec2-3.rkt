@@ -325,7 +325,7 @@
         (else (cons (car set) (adjoin-set x (cdr set))))))
 
 
-;;; Exercise 2.61
+;;; Exercise 2.62
 ;;; -------------
 ;;; Give a Theta(n) implementation of union-set for sets represented as
 ;;; ordered lists.
@@ -338,3 +338,128 @@
                 (cond ((= x1 x2) (cons x1 (union-set (cdr set1) (cdr set2))))
                       ((< x1 x2) (cons x1 (union-set (cdr set1) set2)))
                       (else (cons x2 (union-set set1 (cdr set2)))))))))
+
+
+;;; Exercise 2.63
+;;; -------------
+;;; Each of the following two procedures converts a binary tree to a list.
+
+(define (tree->list-1 tree)
+  (if (null? tree)
+      '()
+      (append (tree->list-1 (left-branch tree))
+              (cons (entry tree)
+                    (tree->list-1 (right-branch tree))))))
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+        result-list
+        (copy-to-list (left-branch tree)
+                      (cons (entry tree)
+                            (copy-to-list (right-branch tree)
+                                          result-list)))))
+  (copy-to-list tree '()))
+
+;; Given:
+
+(define (entry tree) (car tree))
+(define (left-branch tree) (cadr tree))
+(define (right-branch tree) (caddr tree))
+(define (make-tree entry left right)
+  (list entry left right))
+(define (adjoin-set x set)
+  (cond ((null? set) (make-tree x '() '()))
+        ((= x (entry set)) set)
+        ((< x (entry set))
+         (make-tree (entry set) 
+                    (adjoin-set x (left-branch set))
+                    (right-branch set)))
+        ((> x (entry set))
+         (make-tree (entry set)
+                    (left-branch set)
+                    (adjoin-set x (right-branch set))))))
+
+;;; a) Do the two procedures produce the same results for every tree? If not,
+;;;    how do they differ? What lists do the procedures produce for the trees
+;;;    in figure 2.16?
+
+;; I believe both would return an ordered list.
+
+;;          7
+;;        /   \
+;;       3     9
+;;      / \     \
+;;     1   5     11
+
+;; (tree->list-1 (7 (3 (1 () ()) (5 () ())) (9 () (11 () ()))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (tree->list-1 (9 () (11 () ())))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (append '() (cons 9 (tree->list-1 (11 () ()))))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (append '() (cons 9 (append '() (cons 11 '()))))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (append '() (cons 9 (append '() (11))))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (append '() (cons 9 (11)))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (append '() (9 11))))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (cons 7 (9 11)))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (7 9 11))
+;; (append (tree->list-1 (3 (1 () ()) (5 () ()))) (7 9 11))
+;; (append (append (tree->list-1 (1 () ())) (cons 3 (tree->list-1 (5 () ())))) (7 9 11))
+;; (append (append (tree->list-1 (1 () ())) (cons 3 (append '() (cons 5 '())))) (7 9 11))
+;; (append (append (tree->list-1 (1 () ())) (cons 3 (append '() (5)))) (7 9 11))
+;; (append (append (tree->list-1 (1 () ())) (cons 3 (5))) (7 9 11))
+;; (append (append (tree->list-1 (1 () ())) (3 5)) (7 9 11))
+;; (append (append (append '() (cons 1 '())) (3 5)) (7 9 11))
+;; (append (append (append '() (1)) (3 5)) (7 9 11))
+;; (append (append (1) (3 5)) (7 9 11))
+;; (append (1 3 5) (7 9 11))
+;; (1 3 5 7 9 11)
+
+;; (tree->list-2 (7 (3 (1 () ()) (5 () ())) (9 () (11 () ()))))
+;; (copy-to-list (7 (3 (1 () ()) (5 () ())) (9 () (11 () ()))) '())
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list (9 () (11 () ())) '())))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list '() (cons 9 (copy-to-list (11 () ()) '())
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list '() (cons 9 (copy-to-list '() (cons 11 (copy-to-list '() '())))))))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list '() (cons 9 (copy-to-list '() (cons 11 '()))))))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list '() (cons 9 (copy-to-list '() (11))))))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list '() (cons 9 (11)))))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (copy-to-list '() (9 11))))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (cons 7 (9 11)))
+;; (copy-to-list (3 (1 () ()) (5 () ())) (7 9 11))
+;; (copy-to-list (1 () ()) (cons 3 (copy-to-list (5 () ()) (7 9 11))))
+;; (copy-to-list (1 () ()) (cons 3 (copy-to-list '() (cons 5 (copy-to-list '() (7 9 11))))))
+;; (copy-to-list (1 () ()) (cons 3 (copy-to-list '() (cons 5 (7 9 11)))))
+;; (copy-to-list (1 () ()) (cons 3 (copy-to-list '() (5 7 9 11))))
+;; (copy-to-list (1 () ()) (cons 3 (5 7 9 11)))
+;; (copy-to-list (1 () ()) (5 7 9 11))
+;; (copy-to-list '() (cons 1 (copy-to-list '() (5 7 9 11))))
+;; (copy-to-list '() (cons 1 (5 7 9 11)))
+;; (copy-to-list '() (1 5 7 9 11))
+;; (1 5 7 9 11)
+
+;;     3
+;;   /   \
+;;  1     7
+;;      /   \
+;;     5     9
+;;            \
+;;             11
+
+;; (3 (1 () ()) (7 (5 () ()) (9 () (11 () ()))))
+
+;; (tree->list-1 (3 (1 () ()) (7 (5 () ()) (9 () (11 () ())))))
+;; (1 3 5 7 9 11)
+
+;; (tree->list-2 (3 (1 () ()) (7 (5 () ()) (9 () (11 () ())))))
+;; (1 3 5 7 9 11)
+
+;;           5
+;;        /     \
+;;       3       9
+;;     /       /   \
+;;    1       7    11
+
+;; (5 (3 (1 () ()) ()) (9 (7 () ()) (11 () ())))
+
+;; (tree->list-1 (5 (3 (1 () ()) ()) (9 (7 () ()) (11 () ()))))
+;; (1 3 5 7 9 11)
+
+;; (tree->list-2 (5 (3 (1 () ()) ()) (9 (7 () ()) (11 () ()))))
+;; (1 3 5 7 9 11)
