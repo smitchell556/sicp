@@ -463,3 +463,88 @@
 
 ;; (tree->list-2 (5 (3 (1 () ()) ()) (9 (7 () ()) (11 () ()))))
 ;; (1 3 5 7 9 11)
+
+;;; b) Do the two procedures have the same order of growth in the number of
+;;;    steps required to convert a balanced tree with n elements to a list?
+;;;    If not, which one grows more slowly?
+
+;; They have a similar order of growth since each tree node is visited once, but
+;; tree->list-1 uses append while tree->list-2 does not. Since append creates
+;; new elements for all but the last list, and append is called on repeated
+;; half increments of the tree, tree->list-1 is Theta(nlgn) while tree->list-2
+;; is Theta(n) since it relies only on cons which is a constant time operation.
+
+
+;;; Exercise 2.64
+;;; -------------
+;;; list->tree converts an ordered list to a balanced binary tree.
+
+;; Given:
+
+(define (make-tree entry left right)
+  (list entry left right))
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let ((left-size (quotient (- n 1) 2)))
+        (let ((left-result (partial-tree elts left-size)))
+          (let ((left-tree (car left-result))
+                (non-left-elts (cdr left-result))
+                (right-size (- n (+ left-size 1))))
+            (let ((this-entry (car non-left-elts))
+                  (right-result (partial-tree (cdr non-left-elts)
+                                              right-size)))
+              (let ((right-tree (car right-result))
+                    (remaining-elts (cdr right-result)))
+                (cons (make-tree this-entry left-tree right-tree)
+                      remaining-elts))))))))
+
+;;; a) Write a short paragraph explaining as clearly as you can how
+;;;    partial-tree works. Draw the tree produced by list->tree for the list
+;;;    (1 3 5 7 9 11).
+
+;; partial-tree splits the elts list into three parts: 1) the first s elements
+;; where s is the floor of (n-1)/2, 2) the s+1 element (which is equal to the
+;; floor of n/2), and 3) the remaining elements through the end of the list.
+;; The elements from 1) and 3) are passed to partial-tree with their
+;; corresponding sizes. The return values are balanced trees of the elements of
+;; those lists. A new tree is made where the element from 2) is the root of the
+;; tree, and the trees made from 1) and 3) are the left and right branches
+;; respectively. This tree is consed with whatever elements were not used to
+;; create the tree and the cons cell is returned.
+
+;; (1 3 5 7 9 11)
+
+;; Step-by-step tree construction showing the cons cell returned at each step
+;; as a tree and the remaining elements.
+
+;;         3     (5 7 9 11)
+
+;;         1     (5 7 9 11)
+;;          \
+;;           3
+
+;;         7     (9 11)
+
+;;         11    ()
+
+;;         9     ()
+;;        / \
+;;       7   11
+
+;;         5     ()
+;;       /   \
+;;      1     9
+;;       \   / \
+;;        3 7   11
+
+;;; b) What is the order of growth in the number of steps required by list->tree
+;;;    to convert a list of n elements?
+
+;; list->tree calls make-tree once per each element and since partial-tree only
+;; uses cons (not append), the construction of the cons cells is a constant-time
+;; operation so the order of growth of Theta(n).
