@@ -548,3 +548,82 @@
 ;; list->tree calls make-tree once per each element and since partial-tree only
 ;; uses cons (not append), the construction of the cons cells is a constant-time
 ;; operation so the order of growth of Theta(n).
+
+
+;;; Exercise 2.65
+;;; -------------
+;;; Give Theta(n) implementations of union-set and intersection-set for sets
+;;; implemented as (balanced) binary trees.
+
+;; Given:
+
+(define (entry tree) (car tree))
+(define (left-branch tree) (cadr tree))
+(define (right-branch tree) (caddr tree))
+(define (make-tree entry left right)
+  (list entry left right))
+
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+        result-list
+        (copy-to-list (left-branch tree)
+                      (cons (entry tree)
+                            (copy-to-list (right-branch tree)
+                                          result-list)))))
+  (copy-to-list tree '()))
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let ((left-size (quotient (- n 1) 2)))
+        (let ((left-result (partial-tree elts left-size)))
+          (let ((left-tree (car left-result))
+                (non-left-elts (cdr left-result))
+                (right-size (- n (+ left-size 1))))
+            (let ((this-entry (car non-left-elts))
+                  (right-result (partial-tree (cdr non-left-elts)
+                                              right-size)))
+              (let ((right-tree (car right-result))
+                    (remaining-elts (cdr right-result)))
+                (cons (make-tree this-entry left-tree right-tree)
+                      remaining-elts))))))))
+
+(define (intersection-set-ordered-list set1 set2)	; From section 2.3.3
+  (if (or (null? set1) (null? set2))
+      '()    
+      (let ((x1 (car set1)) (x2 (car set2)))
+        (cond ((= x1 x2)
+               (cons x1
+                     (intersection-set (cdr set1)
+                                       (cdr set2))))
+              ((< x1 x2)
+               (intersection-set (cdr set1) set2))
+              ((< x2 x1)
+               (intersection-set set1 (cdr set2)))))))
+
+(define (union-set-ordered-list set1 set2) ; From ex 2.62
+  (cond ((null? set1) set2)
+        ((null? set2) set1)
+        (else (let ((x1 (car set1))
+                    (x2 (car set2)))
+                (cond ((= x1 x2) (cons x1 (union-set (cdr set1) (cdr set2))))
+                      ((< x1 x2) (cons x1 (union-set (cdr set1) set2)))
+                      (else (cons x2 (union-set set1 (cdr set2)))))))))
+
+;; Solution:
+
+(define (set-operation fn set1 set2)
+  (let ((list-set1 (tree->list-2 set1))
+	(list-set2 (tree->list-2 set2)))
+    (let ((single-list (fn list-set1 list-set2)))
+      (list->tree single-list))))
+
+(define (union-set set1 set2)
+  (set-operation union-set-ordered-list set1 set2))
+
+(define (intersection-set set1 set2)
+  (set-operation intersection-set-ordered-list set1 set2))
