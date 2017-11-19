@@ -723,3 +723,114 @@
 
 (decode sample-message sample-tree)
 ;; (a d a b b c a)
+
+
+;;; Exercise 2.68
+;;; -------------
+;;; Define a procedure encode-symbol that returns the list of bits that
+;;; encodes a given symbol according to a given tree.
+
+;; Given:
+
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+              (encode (cdr message) tree))))
+
+;; Solution:
+
+(define (encode-symbol symbol tree)
+  (define (recur-encode-symbol tree)
+    (if (leaf? tree)
+        (if (equal? symbol (symbol-leaf tree))
+            '()
+            false)
+        (let ((l-branch (recur-encode-symbol (left-branch tree)))
+              (r-branch (recur-encode-symbol (right-branch tree))))
+          (cond ((list? l-branch) (cons 0 l-branch))
+                ((list? r-branch) (cons 1 r-branch))
+                (else false)))))
+  (let ((encoding (recur-encode-symbol tree)))
+    (if encoding
+        encoding
+        (error "The symbol is not in the tree."))))
+
+
+;;; Exercise 2.69
+;;; -------------
+;;; Define successive-merge which successively merges the smallest-weight
+;;; elements of the set until there is only one element left.
+
+;; Given:
+
+(define (make-leaf-set pairs)
+  (if (null? pairs)
+      '()
+      (let ((pair (car pairs)))
+        (adjoin-set (make-leaf (car pair)    ; symbol
+                               (cadr pair))  ; frequency
+                    (make-leaf-set (cdr pairs))))))
+
+(define (adjoin-set x set)
+  (cond ((null? set) (list x))
+        ((< (weight x) (weight (car set))) (cons x set))
+        (else (cons (car set)
+                    (adjoin-set x (cdr set))))))
+
+(define (make-code-tree left right)
+  (list left
+        right
+        (append (symbols left) (symbols right))
+        (+ (weight left) (weight right))))
+
+(define (left-branch tree) (car tree))
+(define (right-branch tree) (cadr tree))
+
+(define (make-leaf symbol weight)
+  (list 'leaf symbol weight))
+(define (leaf? object)
+  (eq? (car object) 'leaf))
+(define (symbol-leaf x) (cadr x))
+(define (weight-leaf x) (caddr x))
+
+(define (symbols tree)
+  (if (leaf? tree)
+      (list (symbol-leaf tree))
+      (caddr tree)))
+(define (weight tree)
+  (if (leaf? tree)
+      (weight-leaf tree)
+      (cadddr tree)))
+
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+;; Solution:
+
+(define (successive-merge ordered-pairs)
+  (if (null? (cdr ordered-pairs))
+      (car ordered-pairs)
+      (let ((l1 (car ordered-pairs))
+            (l2 (cadr ordered-pairs))
+            (rest (cddr ordered-pairs)))
+        (let ((new-tree (make-code-tree l1 l2)))
+          (successive-merge (adjoin-set new-tree rest))))))
+
+
+;;; Exercise 2.70
+;;; -------------
+;;; Use generate-huffman-tree and encode to encode lyrics to rock songs from
+;;; the 1950's
+
+(rock-tree (generate-huffman-tree (list '(a 2) '(na 16) '(boom 1) '(sha 3) '(get 2) '(yip 9) '(job 2) '(wah 1))))
+;; ((leaf na 16) ((leaf yip 9) (((leaf a 2) ((leaf wah 1) (leaf boom 1) (wah boom) 2) (a wah boom) 4) ((leaf sha 3) ((leaf job 2) (leaf get 2) (job get) 4) (sha job get) 7) (a wah boom sha job get) 11) (yip a wah boom sha job get) 20) (na yip a wah boom sha job get) 36)
+
+(encode '(Get a job Sha na na na na na na na na Get a job Sha na na na na na na na na Wah yip yip yip yip yip yip yip yip yip Sha boom) rock-tree)
+;; (1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 0 0 1 1 1 1 0 1 1 1 0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 1 0 1 1)
+
+;; The encoding requires 84 bits.
+
+;; If using a fixed length number of bits per symbol, then each symbol would
+;; generate a 3 bit encoding (log_2 (8)). Since the message has 36 symbols,
+;; 3 * 36 = 108 bits.
