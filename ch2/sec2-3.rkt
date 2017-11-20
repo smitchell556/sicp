@@ -834,3 +834,73 @@
 ;; If using a fixed length number of bits per symbol, then each symbol would
 ;; generate a 3 bit encoding (log_2 (8)). Since the message has 36 symbols,
 ;; 3 * 36 = 108 bits.
+
+
+;;; Exercise 2.71
+;;; -------------
+;;; Suppose we have a Huffman tree for an alphabet of n symbols with
+;;; frequencies 1, 2, 4, ..., 2^(n-1). Sketch the tree for n=5 and n=10. In
+;;; such a tree, how many bits are required to encode the most frequent symbol?
+;;; The least frequent symbol?
+
+;; The trees will be constructed using frequencies as symbols. A left branch
+;; represents 0 and a right branch, 1.
+
+;; n=5; 1, 2, 4, 8, 16
+
+;;          31
+;;       /      \
+;;      16      15
+;;           /      \
+;;          8        7
+;;                /     \
+;;               4       3
+;;                     /   \
+;;                    2     1
+
+;; n=10; 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+
+;;            1023
+;;         /        \
+;;       512        511
+;;                /     \
+;;              256    255
+;;                   /     \
+;;                 128     127
+;;                       /     \
+;;                      64     63
+;;                           /    \
+;;                          32    31
+;;                              /    \
+;;                             16    15
+;;                                 /    \
+;;                                8      7
+;;                                     /   \
+;;                                    4     3
+;;                                        /   \
+;;                                       2     1
+
+;; The most frequent symbol requires 1 bit and the least frequent symbol
+;; requires n-1 bits.
+
+
+;;; Exercise 2.72
+;;; -------------
+;;; What is the order of growth in number of steps needed to encode a symbol
+;;; for the procedure from 2.68.
+
+;; Since my implementation uses a tree traversal (DFS which traverses every node
+;; regardless of whether or not the symbol has been found), the growth is based
+;; on the number of nodes and leaves in the tree which is at most
+;; n + (n-1) = 2n-1, so Theta(2n-1) =  Theta(n). It does not make a difference
+;; if the symbol is the most frequent or least frequent symbol in the tree
+;; because the entire tree is traversed whenever a symbol is searched for.
+
+;; Other solutions would check at each node the symbols prevalent in the current
+;; tree and choose to descend the left or right branch based on which side the
+;; symbol is on. This would require more steps for the least frequent symbol
+;; since the search would descend to the bottom and would iterate through every
+;; symbol present in that node of the tree for each level descended. It would
+;; find a frequently used symbol faster though because it would not have to
+;; search through branches that do not contain the symbol. This method would
+;; have a complexity of O(n^2) if the tree was constructed like that in ex 2.71.
