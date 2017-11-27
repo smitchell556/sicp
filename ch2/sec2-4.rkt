@@ -182,3 +182,54 @@
 ;; appropriate selectors to the division/selector table and keep all records
 ;; in a single file. Other than that, their get-record selector must return
 ;; records structured like: (cons <division> <employee-info>).
+
+
+;;; Exercise 2.75
+;;; -------------
+;;; Implement the constructor make-from-mag-ang in message-passing style.
+
+(define (make-from-mag-ang r a)
+  (define (dispatch op)
+    (cond ((eq? op 'magnitude) r)
+	  ((eq? op 'angle) a)
+	  ((eq? op 'real-part) (* r (cos a)))
+	  ((eq? op 'imag-part) (* r (sin a)))
+	  (else (error "Unknown op -- MAKE-FROM-MAG-ANG" op))))
+  dispatch)
+
+
+;;; Exercise 2.76
+;;; -------------
+;;; As a large system with generic operations evolves, new types of data objects
+;;; or new operations may be needed. For each of the three strategies -- generic
+;;; operations with explicit dispatch, data-directed style, and
+;;; message-passing-style -- describe the changes that must be made to a system
+;;; in order to add new types or new operations. Which organization would be
+;;; most appropriate for a system in which new types must often be added? Which
+;;; would be most appropriate for a system in which new operations must often be
+;;; added?
+
+;; Generic operations with explicit dispatch:
+;; Any changes or additions to this style requires the changes to be reflected
+;; in the code that uses the API. The code is added or changed as is and must
+;; be updated everywhere to reflect that.
+
+;; Data-directed style:
+;; Any changes or additions to this style doesn't require the changes to be
+;; reflected in the code that uses the API. The interface allows for flexibility
+;; with different types while not affecting the API.
+
+;; Message-passing style:
+;; Any changes or additions to this style doesn't require the changes to be
+;; reflected in the code that uses the API. The interface allows for flexibility
+;; with different data objects.
+
+;; Both data-directed and message-passing styles are appropriate for systems
+;; where new types are added often. The interface remains relatively static
+;; which is desired in a system like this. For systems where new operations
+;; are often added, any of the styles are appropriate. If you want to add
+;; a new operation to all the current types, each type needs to have the
+;; operation added regardless of style. A call through whatever interface
+;; is being used must then be made to invoke that operation. In terms of
+;; adding operations, the amount of work is the same, the difference is in how
+;; the code is layed out.
