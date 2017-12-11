@@ -54,3 +54,32 @@
 ;; (sqrt (+ (square 3)
 ;;          (square 4)))
 ;; 5
+
+
+;;; Exercise 2.78
+;;; -------------
+;;; Modify the definitions of type-tag, contents, and attach-tag from section
+;;; 2.42 so that our generic system takes advantage of Scheme's internal type
+;;; system.
+
+(define (attach-tag type-tag contents)
+  (if (eq? 'scheme-number type-tag)
+      contents
+      (cons type-tag contents)))
+
+(define (type-tag datum)
+  (cond ((number? datum) 'scheme-number)
+	((pair? datum) (car datum))
+	(else (error "Bad tagged datum -- TYPE-TAG" datum))))
+
+(define (contents datum)
+  (cond ((number? datum) datum)
+	((pair? datum) (cdr datum))
+	(else (error "Bad tagged datum -- CONTENTS" datum))))
+
+
+;;; Exercise 2.79
+;;; -------------
+;;; Define a generic equality predicate equ? that tests the equality of two
+;;; numbers, and install it in the generic arithmetic package. This operation
+;;; should work for ordinary numbers, rational numbers, and complex numbers.
