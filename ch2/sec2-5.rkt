@@ -83,3 +83,51 @@
 ;;; Define a generic equality predicate equ? that tests the equality of two
 ;;; numbers, and install it in the generic arithmetic package. This operation
 ;;; should work for ordinary numbers, rational numbers, and complex numbers.
+
+;; From sec 2.3:
+
+(define (equal? a b)
+  (cond ((or (null? a) (null? b)) (eq? a b))
+	((and (pair? (car a)) (pair? (car b)))
+	 (and (equal? (car a) (car b)) (equal? (cdr a) (cdr b))))
+	((eq? (car a) (car b)) (equal? (cdr a) (cdr b)))
+	(else false)))
+
+(define (install-generic-equ-package)
+  ;; Internal procedures
+  (define (equ-ordinary-ordinary? x y)
+    (= (contents x) (contents y)))
+  (define (equ-rational-rational? x y)
+    (equal? x y))
+  (define (equ-complex-complex? x y)
+    (and (= (real-part x) (real-part y)) (= (imag-part x) (imag-part y))))
+  (define (equ-ordinary-rational? x y)
+    (equ-rational-rational? (make-rational (contents x) 1) y))
+  (define (equ-ordinary-complex? x y)
+    (equ-complex-complex? (make-complex-from-real-imag (contents x) 0) y))
+  (define (equ-rational-complex? x y)
+    (if (= (imag-part y) 0)
+	(equ-rational-rational? x (make-rational (real-part y) 1))
+	false))
+  ;; Interface to rest of system
+  (put 'equ? '(scheme-number scheme-number) equ-ordinary-ordinary?)
+  (put 'equ? '(rational rational) equ-rational-rational?)
+  (put 'equ? '(complex complex) equ-complex-complex?)
+  (put 'equ? '(scheme-number rational) equ-ordinary-rational?)
+  (put 'equ? '(rational scheme-number) (lambda (x y) (equ-ordinary-rational? y x)))
+  (put 'equ? '(scheme-number complex) equ-ordinary-complex?)
+  (put 'equ? '(complex scheme-number) (lambda (x y) (equ-ordinary-complex? y x)))
+  (put 'equ? '(rational complex) equ-rational-complex?)
+  (put 'equ? '(complex rational) (lambda (x y) (equ-rational-complex? y x)))
+  'done)
+
+(define (equ? x y) (apply-generic 'equ? x y))
+
+;; Note: Looking at the answer for this problem on the scheme wiki, it seems I
+;;       misunderstood what was expected. The answers on the scheme wiki only
+;;       concern comparing numbers with equivalent tags, so only comparing
+;;       'scheme-number to 'scheme-number, 'rational to 'rational and 'complex
+;;       to 'complex. I will leave my answer as is since it offers a greater
+;;       breadth of equality checks while simultaneously finding a solution
+;;       to the original problem without the use of the internal procedures
+;;       used by the other packages.
