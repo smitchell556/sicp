@@ -95,8 +95,7 @@
 
 (define (install-generic-equ-package)
   ;; Internal procedures
-  (define (equ-ordinary-ordinary? x y)
-    (= (contents x) (contents y)))
+  (define (equ-ordinary-ordinary? x y) =)
   (define (equ-rational-rational? x y)
     (equal? x y))
   (define (equ-complex-complex? x y)
@@ -131,3 +130,64 @@
 ;;       breadth of equality checks while simultaneously finding a solution
 ;;       to the original problem without the use of the internal procedures
 ;;       used by the other packages.
+
+;; Expected solution:
+
+(define (install-scheme-number-package)
+  ;; ...
+  (define (equ? x y) =)
+  ;; ...
+  (put 'equ? '(scheme-number scheme-number) equ?)
+  'done)
+
+(define (install-rational-package)
+  ;; ...
+  (define (equ? x y)
+    (and (= (numer x) (numer y)) (= (denom x) (denom y))))
+  ;; ...
+  (put 'equ? '(rational rational) equ?)
+  'done)
+
+(define (install-complex-package)
+  ;; ...
+  (define (equ? x y)
+    (and (= (real-part x) (real-part y)) (= (imag-part x) (imag-part y))))
+  ;; ...
+  (put 'equ? '(complex complex) equ?)
+  'done)
+
+(define (equ? x y)
+  (apply-generic 'equ? x y))
+
+
+;;; Exercise 2.80
+;;; -------------
+;;; Define a generic predicate =zerio? that tests if its argument is zero, and
+;;; install it in the generic arithmetic package. This operation should work
+;;; for ordinary numbers, rational numbers, and complex numbers.
+
+(define (install-scheme-number-package)
+  ;; ...
+  (define (=zero? x)
+    (= x 0))
+  ;; ...
+  (put '=zero? 'scheme-number =zero?)
+  'done)
+
+(define (install-rational-package)
+  ;; ...
+  (define (=zero? x)
+    (= (numer x) 0))
+  ;; ...
+  (put '=zero? 'rational =zero?)
+  'done)
+
+(define (install-complex-package)
+  ;; ...
+  (define (=zero? x)
+    (= (real-part x) (imag-part x) 0))
+  ;; ...
+  (put '=zero? 'complex =zero?)
+  'done)
+
+(define (=zero? x) (apply-generic '=zero? x))
