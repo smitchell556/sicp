@@ -191,3 +191,50 @@
   'done)
 
 (define (=zero? x) (apply-generic '=zero? x))
+
+
+;;; Exercise 2.81
+;;; -------------
+;;; Suppose coercions were added that coerced a type to itself.
+
+;;; a) What happens if apply-generic is called with two arguments of the same
+;;;    type for an operation that is not found in the table for that type?
+
+;; It would result in an infinite loop because a coercion would be found and
+;; apply-generic would be called again with the same arguments.
+
+;;; b) Is the assumption that coercion of arguments with the same type is
+;;;    necessary correct or does apply-generic work correctly as is?
+
+;; It works correctly as is. If a procedure exists that works on two arguments
+;; of the same type, then that procedure will be found and used before type
+;; coercion happens. By not creating type coercions for two arguments of the
+;; same type, control will call an error procedure.
+
+;;; c) Modify `apply-generic` so that it doesn't try coercion if the two
+;;;    arguments have the same type.
+
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (not (eq? type1 type2))
+                    (let ((t1->t2 (get-coercion type1 type2))
+                          (t2->t1 (get-coercion type2 type1)))
+                      (cond (t1->t2
+                             (apply-generic op (t1->t2 a1) a2))
+                            (t2->t1
+                             (apply-generic op a1 (t2->t1 a2)))
+                            (else
+                             (error "No method for these types"
+                                    (list op type-tags)))))
+                    (error "No method for these types"
+                           (list op type-tags))))
+              (error "No method for these types"
+                     (list op type-tags)))))))
