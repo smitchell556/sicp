@@ -238,3 +238,9 @@
                            (list op type-tags))))
               (error "No method for these types"
                      (list op type-tags)))))))
+
+
+;;; Exercise 2.82
+;;; -------------
+;;; Show how to generalize apply-generic to handle coercion in the general case
+;;; of multiple arguments.
